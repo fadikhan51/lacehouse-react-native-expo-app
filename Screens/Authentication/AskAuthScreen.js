@@ -12,8 +12,10 @@ export default AskAuthScreen = ({ navigation}) => {
             blurRadius={5}
         >
             <View style={styles.container}>
+                <View style={styles.logoContainer}>
+                    <Logo width={250}  height={250} />
+                </View>
                 <View style={styles.buttonContainer}>
-                    <Logo width={200}  height={200} />
                     <TouchableOpacity 
                         style={styles.button}
                         onPress={() => navigation.navigate('Login')}
@@ -41,8 +43,13 @@ const styles = StyleSheet.create({
     },
     container: {
         flex: 1,
-        justifyContent: 'flex-end',
+        justifyContent: 'space-between',
         padding: 20
+    },
+    logoContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center'
     },
     buttonContainer: {
         marginBottom: 20
