@@ -14,6 +14,8 @@ import HomeScreen from "./HomeScreen";
 import CartScreen from "./CartScreen";
 import NotificationsScreen from "./NotificationsScreen";
 import ProfileSettings from "./ProfileSettings";
+import { useEffect, useRef } from "react";
+import * as Animatable from "react-native-animatable";
 
 const TabArr = [
   {
@@ -51,6 +53,16 @@ const Tab = createBottomTabNavigator();
 const TabButton = (props) => {
   const { item, onPress, accessibilityState } = props;
   const focused = accessibilityState.selected;
+  const viewRef = useRef(null);
+
+  useEffect(()=>{
+    if(focused) {
+      viewRef.current.animate({0: {scale: 0.5}, 1: {scale: 1.5}});
+    }
+    else {
+      viewRef.current.animate({0: {scale: 1.5}, 1: {scale: 1}});
+    }
+  }, [focused])
 
   return (
     <TouchableOpacity
@@ -58,7 +70,14 @@ const TabButton = (props) => {
       activeOpacity={1}
       style={[styles.container, { top: 0 }]}
     >
+      <Animatable.View
+      ref={viewRef}
+      animation={'zoomIn'}
+      duration={1000}
+      style={styles.container}
+      >
       {focused ? item.activeIcon : item.inActiveIcon}
+      </Animatable.View>
     </TouchableOpacity>
   )
 }
