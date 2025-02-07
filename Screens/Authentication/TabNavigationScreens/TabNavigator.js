@@ -1,6 +1,4 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import LoginScreen from "../LoginScreen";
-import SignUpScreen from "../SignupScreen";
 import CartActive from "../../../assets/icons/cart_active.svg";
 import CartUncative from "../../../assets/icons/cart_unactive.svg";
 import HomeActive from "../../../assets/icons/home_active.svg";
@@ -21,29 +19,29 @@ const TabArr = [
   {
     route: "Home",
     label: "Home",
-    activeIcon: <HomeActive width={40} height={40}/>,
-    inActiveIcon: <HomeUncative width={40} height={40}/>,
+    activeIcon: <HomeActive width={20} height={20} />,
+    inActiveIcon: <HomeUncative width={40} height={40} />,
     component: HomeScreen,
   },
   {
     route: "Cart",
     label: "Cart",
-    activeIcon: <CartActive width={50} height={50}/>,
-    inActiveIcon: <CartUncative width={50} height={50}/>,
+    activeIcon: <CartActive width={20} height={20} />,
+    inActiveIcon: <CartUncative width={50} height={50} />,
     component: CartScreen,
   },
   {
-    route: "Notifications",
-    label: "Notifications",
-    activeIcon: <NotificationActive width={35} height={35}/>,
-    inActiveIcon: <NotificationUncative width={35} height={35}/>,
+    route: "Feed",
+    label: "Feed",
+    activeIcon: <NotificationActive width={17} height={17} />,
+    inActiveIcon: <NotificationUncative width={35} height={35} />,
     component: NotificationsScreen,
   },
   {
     route: "Settings",
     label: "Settings",
-    activeIcon: <ProfileActive width={40} height={40}/>,
-    inActiveIcon: <ProfileUncative width={40} height={40}/>,
+    activeIcon: <ProfileUncative width={20} height={20} />,
+    inActiveIcon: <ProfileActive width={40} height={40} />,
     component: ProfileSettings,
   },
 ];
@@ -54,33 +52,58 @@ const TabButton = (props) => {
   const { item, onPress, accessibilityState } = props;
   const focused = accessibilityState.selected;
   const viewRef = useRef(null);
+  const textRef = useRef(null);
 
-  useEffect(()=>{
-    if(focused) {
-      viewRef.current.animate({0: {scale: 0.5}, 1: {scale: 1.5}});
+  useEffect(() => {
+    if (focused) {
+      viewRef.current.animate({ 
+        0: { translateX: 0 }, 
+        1: { translateX: 0 } 
+      });
+      textRef.current.animate({
+        0: { translateY: 10, opacity: 0 },
+        1: { translateY: 0, opacity: 1 }
+      });
+    } else {
+      viewRef.current.animate({ 
+        0: { translateX: -10 }, 
+        1: { translateX: 0 } 
+      });
+      textRef.current.animate({
+        0: { translateY: 0, opacity: 1 },
+        1: { translateY: 10, opacity: 0 }
+      });
     }
-    else {
-      viewRef.current.animate({0: {scale: 1.5}, 1: {scale: 1}});
-    }
-  }, [focused])
+  }, [focused]);
 
   return (
     <TouchableOpacity
       onPress={onPress}
       activeOpacity={1}
-      style={[styles.container, { top: 0 }]}
+      style={[styles.container, focused && styles.expandedContainer]}
     >
       <Animatable.View
-      ref={viewRef}
-      animation={'zoomIn'}
-      duration={1000}
-      style={styles.container}
+        style={[styles.btnContainer, focused && styles.expandedBtnContainer]}
+        ref={viewRef}
+        duration={300}
       >
-      {focused ? item.activeIcon : item.inActiveIcon}
+        <View style={[
+          styles.iconContainer,
+          focused && styles.activeIconContainer
+        ]}>
+          {focused ? item.activeIcon : item.inActiveIcon}
+          <Animatable.Text
+            ref={textRef}
+            duration={300}
+            style={styles.labelText}
+          >
+            {focused ? item.label : ""}
+          </Animatable.Text>
+        </View>
       </Animatable.View>
     </TouchableOpacity>
-  )
-}
+  );
+};
 
 export default function TabNavigator() {
   return (
@@ -88,7 +111,10 @@ export default function TabNavigator() {
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
-          paddingTop: 10,
+          height: 70,
+          paddingTop: 15,
+          paddingHorizontal: 30,
+          paddingBottom: 15,
         },
       }}
     >
@@ -99,7 +125,7 @@ export default function TabNavigator() {
             name={item.route}
             component={item.component}
             options={{
-              tabBarButton: (props) => <TabButton {...props} item={item} />
+              tabBarButton: (props) => <TabButton {...props} item={item} />,
             }}
           />
         );
@@ -108,12 +134,40 @@ export default function TabNavigator() {
   );
 }
 
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    overflow: 'hidden',
+    transition: 'all 0.3s ease',
+  },
+  expandedContainer: {
+    flex: 2,
+  },
+  btnContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    width: '100%',
+  },
+  expandedBtnContainer: {
+    width: '100%',
+  },
+  iconContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 8,
+    borderRadius: 20,
+  },
+  activeIconContainer: {
+    backgroundColor: '#000',
+    width: '100%',
     justifyContent: 'center',
-    alignItems: 'center',
-    height: 60,
+  },
+  labelText: {
+    color: '#fff',
+    marginLeft: 8,
+    fontSize: 12,
   }
-})
+});
