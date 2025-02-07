@@ -6,6 +6,7 @@ import LoginScreen from './Screens/Authentication/LoginScreen';
 import SignUpScreen from './Screens/Authentication/SignupScreen';
 import AskAuthScreen from './Screens/Authentication/AskAuthScreen';
 import TabNavigator from './Screens/Authentication/TabNavigationScreens/TabNavigator';
+import ProductDetails from './Screens/Authentication/TabNavigationScreens/ProductDetailsScreen';
 
 const Stack = createStackNavigator();
 
@@ -23,6 +24,7 @@ export default function App() {
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="SignUp" component={SignUpScreen} />
         <Stack.Screen name="TabScreens" component={TabNavigator} />
+        <Stack.Screen name="ProductDetails" component={ProductDetails} />
       </Stack.Navigator>
     </NavigationContainer>
   );
