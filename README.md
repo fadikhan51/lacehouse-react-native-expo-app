@@ -20,7 +20,7 @@ Register an Android or iOS app.
 Copy the Firebase config values.
 
 2️⃣ Create a .env File
-Inside your project root, create a .env file and add the following:
+Inside your project root, create a .env file and add the following:<br>
 <code># .env
 FIREBASE_API_KEY=your_api_key
 FIREBASE_AUTH_DOMAIN=your_auth_domain
@@ -28,19 +28,17 @@ FIREBASE_PROJECT_ID=your_project_id
 FIREBASE_STORAGE_BUCKET=your_storage_bucket
 FIREBASE_MESSAGING_SENDER_ID=your_sender_id
 FIREBASE_APP_ID=your_app_id
-👉 Note: Do not share this file or commit it to GitHub!</code>
+👉 Note: Do not share this file or commit it to GitHub!</code><br>
 
 3️⃣ Install Dependencies
-Run the following command to install required packages:
+Run the following command to install required packages:<br>
 
-<code>npm install</code>
+<code>npm install</code><br>
 4️⃣ Start the Expo Project
-Launch the development server with:
-
+Launch the development server with:<br>
 <code>npm start
 or
-expo start</code>
-
+expo start</code><br>
 5️⃣ Run on Mobile
 Scan the QR Code shown in the terminal using Expo Go.
 The app will open instantly on your device! 🎉
