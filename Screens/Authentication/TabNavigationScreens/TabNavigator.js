@@ -111,10 +111,18 @@ export default function TabNavigator() {
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
-          height: 70,
+          height: 90,
           paddingTop: 15,
           paddingHorizontal: 30,
-          paddingBottom: 15,
+          paddingBottom: 25,
+          shadowColor: '#000',
+          shadowOffset: {
+            width: 0,
+            height: -4,
+          },
+          shadowOpacity: 0.1,
+          shadowRadius: 4,
+          elevation: 5,
         },
       }}
     >
