@@ -7,6 +7,9 @@ import SignUpScreen from './Screens/Authentication/SignupScreen';
 import AskAuthScreen from './Screens/Authentication/AskAuthScreen';
 import TabNavigator from './Screens/Authentication/TabNavigationScreens/TabNavigator';
 import ProductDetails from './Screens/Authentication/TabNavigationScreens/ProductDetailsScreen';
+import EditProfileScreen from './Screens/Authentication/TabNavigationScreens/ProfileSettings/EditProfileScreen';
+import PasswordChangeScreen from './Screens/Authentication/TabNavigationScreens/ProfileSettings/PasswordChangeScreen';
+import PrivacyPolicyScreen from './Screens/Authentication/TabNavigationScreens/ProfileSettings/PrivacypolicyScreen';  
 
 const Stack = createStackNavigator();
 
@@ -15,7 +18,7 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator 
-        initialRouteName="TabScreens"
+        initialRouteName="PrivacyPolicy"
         screenOptions={{
           headerShown: false
         }}
@@ -25,6 +28,10 @@ export default function App() {
         <Stack.Screen name="SignUp" component={SignUpScreen} />
         <Stack.Screen name="TabScreens" component={TabNavigator} />
         <Stack.Screen name="ProductDetails" component={ProductDetails} />
+        <Stack.Screen name="EditProfile" component={EditProfileScreen} />
+        <Stack.Screen name="ChangePassword" component={PasswordChangeScreen} />
+        <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicyScreen} />
+
       </Stack.Navigator>
     </NavigationContainer>
   );
