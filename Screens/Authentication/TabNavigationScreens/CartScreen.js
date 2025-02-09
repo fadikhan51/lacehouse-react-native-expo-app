@@ -51,7 +51,7 @@ const INITIAL_CART = [
     price: 40,
     quantity: 1,
     image: images.bag3,
-  },
+  }
 ];
 
 const CartScreen = () => {
@@ -78,7 +78,7 @@ const CartScreen = () => {
     <SafeAreaView style={styles.safeArea}>
       <GestureHandlerRootView style={styles.container}>
         <Text style={styles.title}>My Cart</Text>
-        <ScrollView style={styles.scrollView}>
+        <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
           {cart.map((item) => (
             <ListItem
               key={item.id}
@@ -88,15 +88,20 @@ const CartScreen = () => {
             />
           ))}
         </ScrollView>
+        <View style={styles.totalContainer}>
         <Text style={styles.totalText}>
           Total ({cart.length} item{cart.length > 1 ? "s" : ""}) :{" "}
-          <Text style={styles.totalPrice}>
+        </Text>
+        <Text style={styles.totalPrice}>
             $
             {cart
               .reduce((acc, item) => acc + item.price * item.quantity, 0)
               .toFixed(2)}
           </Text>
-        </Text>
+        </View>
+        <TouchableOpacity style={styles.checkoutButton}>
+          <Text style={styles.checkoutButtonText}>Proceed to Checkout</Text>
+        </TouchableOpacity>
       </GestureHandlerRootView>
     </SafeAreaView>
   );
@@ -235,8 +240,15 @@ const styles = StyleSheet.create({
     backgroundColor: "black",
     borderRadius: 20,
   },
-  totalText: { fontSize: 16, fontWeight: "bold", marginTop: 20 },
-  totalPrice: { fontSize: 18, color: "black" },
+  totalContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-end',
+    borderTopWidth: 0.5,
+    borderTopColor: 'gray'
+  },
+  totalText: { fontSize: 16, fontWeight: "bold", color:'gray', marginTop: 20 },
+  totalPrice: { fontSize: 18, color: "black", fontWeight: "bold" },
   quantityContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -257,6 +269,18 @@ const styles = StyleSheet.create({
   },
   quantityText: {
     marginHorizontal: 10,
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  checkoutButton: {
+    backgroundColor: 'black',
+    padding: 15,
+    borderRadius: 10,
+    marginTop: 20,
+    alignItems: 'center',
+  },
+  checkoutButtonText: {
+    color: 'white',
     fontSize: 16,
     fontWeight: 'bold',
   },
