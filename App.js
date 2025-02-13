@@ -10,7 +10,8 @@ import ProductDetails from './Screens/Authentication/TabNavigationScreens/Produc
 import EditProfileScreen from './Screens/Authentication/TabNavigationScreens/ProfileSettings/EditProfileScreen';
 import PasswordChangeScreen from './Screens/Authentication/TabNavigationScreens/ProfileSettings/PasswordChangeScreen';
 import PrivacyPolicyScreen from './Screens/Authentication/TabNavigationScreens/ProfileSettings/PrivacypolicyScreen';  
-
+import PasswordChangeSuccessfulScreen from './Screens/Authentication/TabNavigationScreens/ProfileSettings/PasswordChangeSuccessfulScreen';  
+import WishListScreen from './Screens/Authentication/TabNavigationScreens/ProfileSettings/WishListScreen';
 const Stack = createStackNavigator();
 
 
@@ -18,7 +19,7 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator 
-        initialRouteName="PrivacyPolicy"
+        initialRouteName="WishList"
         screenOptions={{
           headerShown: false
         }}
@@ -31,6 +32,9 @@ export default function App() {
         <Stack.Screen name="EditProfile" component={EditProfileScreen} />
         <Stack.Screen name="ChangePassword" component={PasswordChangeScreen} />
         <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicyScreen} />
+        <Stack.Screen name="PasswordChangeSuccessful" component={PasswordChangeSuccessfulScreen} />
+        <Stack.Screen name="WishList" component={WishListScreen} />
+        
 
       </Stack.Navigator>
     </NavigationContainer>
