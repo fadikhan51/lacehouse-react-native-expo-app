@@ -10,7 +10,7 @@ const PasswordChangeSuccessfulScreen = () => {
   return (
     <View style={styles.container}>
       <View style={styles.contentContainer}>
-        <Icon name="check-circle" size={150} color="#000" />
+        <Icon name="check-circle" size={150} color="#28a745" />
         <Text style={styles.successText}>Successfully!</Text>
         <Text style={styles.message}>
           Your password has been successfully changed.

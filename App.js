@@ -11,7 +11,9 @@ import EditProfileScreen from './Screens/Authentication/TabNavigationScreens/Pro
 import PasswordChangeScreen from './Screens/Authentication/TabNavigationScreens/ProfileSettings/PasswordChangeScreen';
 import PrivacyPolicyScreen from './Screens/Authentication/TabNavigationScreens/ProfileSettings/PrivacypolicyScreen';  
 import PasswordChangeSuccessfulScreen from './Screens/Authentication/TabNavigationScreens/ProfileSettings/PasswordChangeSuccessfulScreen';  
-import WishListScreen from './Screens/Authentication/TabNavigationScreens/ProfileSettings/WishListScreen';
+import WishlistScreen from './Screens/Authentication/TabNavigationScreens/WishListScreen';   
+import OrderComplete from './Screens/Authentication/TabNavigationScreens/OrderComplete';
+import  ConfirmScreen from './Screens/Authentication/TabNavigationScreens/ConfirmScreen';
 const Stack = createStackNavigator();
 
 
@@ -19,7 +21,7 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator 
-        initialRouteName="WishList"
+        initialRouteName="CartDone"
         screenOptions={{
           headerShown: false
         }}
@@ -33,7 +35,10 @@ export default function App() {
         <Stack.Screen name="ChangePassword" component={PasswordChangeScreen} />
         <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicyScreen} />
         <Stack.Screen name="PasswordChangeSuccessful" component={PasswordChangeSuccessfulScreen} />
-        <Stack.Screen name="WishList" component={WishListScreen} />
+        <Stack.Screen name="Wishlist" component={WishlistScreen} />
+        <Stack.Screen name="OrderScreen" component={OrderComplete} />
+        <Stack.Screen name="CartDone" component={ConfirmScreen} />
+        
         
 
       </Stack.Navigator>

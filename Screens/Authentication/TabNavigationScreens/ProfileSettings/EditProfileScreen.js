@@ -13,7 +13,7 @@ const EditProfileScreen = () => {
   const [dateOfBirth, setDateOfBirth] = useState('');
   const [profileImage, setProfileImage] = useState(null);
 
-  const defaultImage = 'https://via.placeholder.com/150';
+  const defaultImage = 'https://dummyimage.com/150/000000/000000';
 
   const handleImagePick = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -56,7 +56,6 @@ const EditProfileScreen = () => {
               <Image source={{ uri: defaultImage }} style={styles.defaultImage} />
             </View>
           )}
-          <View style={styles.blackDot} />
           <View style={styles.cameraIconContainer}>
             <Ionicons name="camera" size={20} color="#fff" />
           </View>
@@ -166,16 +165,6 @@ const styles = StyleSheet.create({
   defaultImage: {
     width: '100%',
     height: '100%',
-  },
-  blackDot: {
-    position: 'absolute',
-    top: '50%',
-    left: '17.40%',
-    width: 10,
-    height: 10,
-    backgroundColor: '#000',
-    borderRadius: 5,
-    transform: [{ translateX: -5 }, { translateY: -5 }],
   },
   cameraIconContainer: {
     position: 'absolute',
