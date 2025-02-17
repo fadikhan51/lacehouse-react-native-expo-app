@@ -10,7 +10,7 @@ import ProductDetails from './Screens/Authentication/TabNavigationScreens/Produc
 
 const Stack = createStackNavigator();
 
-
+// Testing App
 export default function App() {
   return (
     <NavigationContainer>
