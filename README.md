@@ -10,7 +10,7 @@ Firebase Console<br>
 Expo Go App (for testing on mobile)<br>
 
 _____________________________________________________________________________________________________________
-⚡ Setup & Installation Procedure
+⚡ Setup & Installation
 
 1️⃣ Register Firebase Project
 Go to Firebase Console.
