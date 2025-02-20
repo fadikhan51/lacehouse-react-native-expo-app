@@ -14,6 +14,10 @@ import PasswordChangeSuccessfulScreen from './Screens/Authentication/TabNavigati
 import WishlistScreen from './Screens/Authentication/TabNavigationScreens/WishListScreen';   
 import OrderComplete from './Screens/Authentication/TabNavigationScreens/OrderComplete';
 import  ConfirmScreen from './Screens/Authentication/TabNavigationScreens/ConfirmScreen';
+import DeliveryAddressScreen from './Screens/Authentication/TabNavigationScreens/DeliveryAddressScreen';
+import NotificationScreen from './Screens/Authentication/TabNavigationScreens/NotificationScreen';
+import VerificationOtpScreen from './Screens/Authentication/TabNavigationScreens/VerficationOptScreen';
+
 const Stack = createStackNavigator();
 
 
@@ -21,7 +25,7 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator 
-        initialRouteName="CartDone"
+        initialRouteName="Verification"
         screenOptions={{
           headerShown: false
         }}
@@ -38,6 +42,10 @@ export default function App() {
         <Stack.Screen name="Wishlist" component={WishlistScreen} />
         <Stack.Screen name="OrderScreen" component={OrderComplete} />
         <Stack.Screen name="CartDone" component={ConfirmScreen} />
+        <Stack.Screen name="DeliveryAddress" component={DeliveryAddressScreen} />
+        <Stack.Screen name="Notification" component={NotificationScreen} />
+        <Stack.Screen name="Verification" component={VerificationOtpScreen} />
+        
         
         
 

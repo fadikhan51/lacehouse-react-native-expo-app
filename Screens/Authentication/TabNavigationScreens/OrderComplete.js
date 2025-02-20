@@ -5,58 +5,54 @@ import {
   Text,
   View,
   ScrollView,
-  Image,
   TouchableOpacity,
   SafeAreaView,
   Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import * as Clipboard from "expo-clipboard";
-import images from "../../../Constants/images";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 const INITIAL_ORDERS = [
   {
     id: "1",
-    name: "Product 1",
+    name: "Vado Odelle Dress",
     description: "Vado Odelle Dress",
     price: 198,
-    image: images.bag1,
+    quantity: 1,
   },
   {
     id: "2",
-    name: "Product 2",
+    name: "Clean 90 Triple Sneakers",
     description: "Clean 90 Triple Sneakers",
     price: 245,
-    image: images.bag2,
+    quantity: 1,
   },
   {
     id: "3",
-    name: "Product 3",
+    name: "Daypack Backpack",
     description: "Daypack Backpack",
     price: 40,
-    image: images.bag3,
+    quantity: 1,
   },
 ];
 
 const OrderComplete = () => {
   const [orders, setOrders] = useState(INITIAL_ORDERS);
-  const [isProductsVisible, setIsProductsVisible] = useState(false);
+  const [showFullList, setShowFullList] = useState(false);
 
   const copyToClipboard = async (text) => {
     await Clipboard.setStringAsync(text);
     Alert.alert("Copied to Clipboard", "Order number has been copied.");
   };
 
-  const subtotal = orders.reduce((total, item) => total + item.price, 0);
+  const subtotal = orders.reduce((total, item) => total + item.price * item.quantity, 0);
   const deliveryCharge = 200;
-  const packingFee = 10; // Add packing fee
-  const totalOrderAmount = subtotal + deliveryCharge + packingFee; // Update total order amount
+  const packingFee = 10;
+  const totalOrderAmount = subtotal + deliveryCharge + packingFee;
 
-  const toggleProductsVisibility = () => {
-    setIsProductsVisible(!isProductsVisible);
-  };
+  const initialProductCount = 1;
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -96,43 +92,49 @@ const OrderComplete = () => {
           </View>
 
           <View style={styles.productsContainer}>
-            <TouchableOpacity
-              style={styles.productsHeader}
-              onPress={toggleProductsVisibility}
-            >
-              <Text style={styles.productsTitle}>Products ({orders.length})</Text>
-              <Ionicons
-                name={isProductsVisible ? "chevron-up" : "chevron-down"}
-                size={20}
-                color="black"
-              />
-            </TouchableOpacity>
+            <Text style={styles.productsTitle}>Order Summary ({orders.length})</Text>
 
-            {isProductsVisible && (
-              <View style={styles.productsListContainer}>
-                {orders.map((item) => (
-                  <ListItem key={item.id} item={item} />
-                ))}
-              </View>
+            <View style={styles.productListContainer}>
+              {orders.slice(0, showFullList ? orders.length : initialProductCount).map((item) => (
+                <View key={item.id} style={styles.productRow}>
+                  <Text style={styles.productName}>
+                    {item.quantity}x {item.name}
+                  </Text>
+                  <Text style={styles.productPrice}>Rs. {(item.price * item.quantity).toFixed(2)}</Text>
+                </View>
+              ))}
+            </View>
+
+            {orders.length > initialProductCount && (
+              <TouchableOpacity onPress={() => setShowFullList(!showFullList)}>
+                <Text style={styles.showMoreButton}>
+                  {showFullList ? 'Show Less' : `Show More (${orders.length - initialProductCount})`}
+                </Text>
+              </TouchableOpacity>
             )}
 
-            <View style={styles.orderTotalContainer}>
-              <View style={styles.orderTotalRow}>
-                <Text style={styles.orderTotalText}>Subtotal</Text>
-                <Text style={styles.orderTotalAmount}>{subtotal.toFixed(2)}</Text>
-              </View>
-              <View style={styles.orderTotalRow}>
-                <Text style={styles.orderTotalText}>Delivery Charges</Text>
-                <Text style={styles.orderTotalAmount}>{deliveryCharge.toFixed(2)}</Text>
-              </View>
-              <View style={styles.orderTotalRow}>
-                <Text style={styles.orderTotalText}>Packing Fee</Text>
-                <Text style={styles.orderTotalAmount}>{packingFee.toFixed(2)}</Text>
-              </View>
-              <View style={styles.orderTotalRow}>
-                <Text style={styles.orderTotalText}>Total</Text>
-                <Text style={styles.orderTotalAmount}>{totalOrderAmount.toFixed(2)}</Text>
-              </View>
+            <View style={styles.divider} />
+
+            <View style={styles.billingRow}>
+              <Text style={styles.billingLabel}>Subtotal</Text>
+              <Text style={styles.billingValue}>Rs. {subtotal.toFixed(2)}</Text>
+            </View>
+
+            <View style={styles.billingRow}>
+              <Text style={styles.billingLabel}>Standard Delivery</Text>
+              <Text style={styles.billingValue}>Rs. {deliveryCharge.toFixed(2)}</Text>
+            </View>
+
+            <View style={styles.billingRow}>
+              <Text style={styles.billingLabel}>Packing Fee</Text>
+              <Text style={styles.billingValue}>Rs. {packingFee.toFixed(2)}</Text>
+            </View>
+
+            <View style={styles.divider} />
+
+            <View style={styles.billingRow}>
+              <Text style={styles.billingLabel}>Total</Text>
+              <Text style={styles.billingValue}>Rs. {totalOrderAmount.toFixed(2)}</Text>
             </View>
           </View>
 
@@ -142,19 +144,6 @@ const OrderComplete = () => {
         </View>
       </ScrollView>
     </SafeAreaView>
-  );
-};
-
-const ListItem = ({ item }) => {
-  return (
-    <View style={styles.task}>
-      <Image source={item.image} style={styles.image} />
-      <View style={styles.itemDetails}>
-        <Text style={styles.itemName}>{item.name}</Text>
-        <Text style={styles.itemDescription}>{item.description}</Text>
-        <Text style={styles.itemPrice}>{item.price.toFixed(2)}</Text>
-      </View>
-    </View>
   );
 };
 
@@ -173,7 +162,7 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 20,
+    marginBottom: 5,
     justifyContent: "center",
   },
   title: {
@@ -183,7 +172,7 @@ const styles = StyleSheet.create({
   deliveryDetails: {
     backgroundColor: "white",
     borderRadius: 20,
-    padding: 20,
+    padding: 10,
     marginBottom: 10,
     shadowOpacity: 0.1,
     shadowOffset: { width: 0, height: 10 },
@@ -237,81 +226,60 @@ const styles = StyleSheet.create({
   productsContainer: {
     backgroundColor: "white",
     borderRadius: 20,
-    padding: 20,
+    padding: 10,
     shadowOpacity: 0.1,
     shadowOffset: { width: 0, height: 10 },
     shadowRadius: 5,
     elevation: 5,
-    marginBottom: 10,
-  },
-  productsHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
     marginBottom: 10,
   },
   productsTitle: {
     fontSize: 16,
     fontWeight: "bold",
-  },
-  productsListContainer: {
     marginBottom: 10,
   },
-  task: {
-    flexDirection: "row",
-    alignItems: "center",
-    width: "100%",
-    height: 100,
-    padding: 10,
-    backgroundColor: "white",
-    borderRadius: 15,
+  productListContainer: {
     marginBottom: 10,
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 10 },
-    shadowRadius: 5,
-    elevation: 5,
   },
-  image: {
-    width: 60,
-    height: 60,
-    borderRadius: 10,
-    marginRight: 15,
-  },
-  itemDetails: {
-    flex: 1,
-  },
-  itemName: {
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  itemDescription: {
-    fontSize: 12,
-    color: "gray",
-  },
-  itemPrice: {
-    fontSize: 16,
-    fontWeight: "bold",
-    marginTop: 5,
-  },
-  orderTotalContainer: {
-    marginTop: 10,
-    paddingTop: 25,
-    borderTopWidth: 1,
-    borderTopColor: "#E0E0E0",
-  },
-  orderTotalRow: {
+  productRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 5,
+    marginBottom: 6,
   },
-  orderTotalText: {
+  productName: {
     fontSize: 14,
-    fontWeight: "bold",
+    color: "#333",
   },
-  orderTotalAmount: {
+  productPrice: {
     fontSize: 14,
     fontWeight: "bold",
     color: "#333",
+  },
+  billingRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 8,
+  },
+  billingLabel: {
+    fontSize: 14,
+    color: "#333",
+  },
+  billingValue: {
+    fontSize: 14,
+    fontWeight: "bold",
+    color: "#333",
+  },
+  divider: {
+    borderBottomWidth: 1,
+    borderBottomColor: "#ccc",
+    marginVertical: 8,
+  },
+  showMoreButton: {
+    fontSize: 14,
+    fontWeight: "bold",
+    color: "#000",
+    textAlign: "center",
+    marginTop: 8,
   },
   continueShoppingButton: {
     backgroundColor: "black",

@@ -1,8 +1,45 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Modal, Button, SafeAreaView } from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialIcons'; // Import the icon library
+import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Modal, Button, SafeAreaView, Image, Alert } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+import * as Clipboard from 'expo-clipboard';
+import images from "../../../Constants/images";
 
-const ConfirmScreen = ({ navigation }) => { // Add navigation prop
+const INITIAL_ORDERS = [
+  {
+    id: "1",
+    name: "Product 1",
+    description: "Vado Odelle Dress",
+    price: 198,
+    image: images.bag1,
+    quantity: 1,
+  },
+  {
+    id: "2",
+    name: "Product 2",
+    description: "Clean 90 Triple Sneakers",
+    price: 198,
+    image: images.bag2,
+    quantity: 1,
+  },
+  {
+    id: "3",
+    name: "Product 3",
+    description: "Daypack Backpack",
+    price: 40,
+    image: images.bag3,
+    quantity: 1,
+  },
+  {
+    id: "4",
+    name: "Product 4",
+    description: "Leather Jacket",
+    price: 120,
+    image: images.bag4,
+    quantity: 1,
+  },
+];
+
+const ConfirmScreen = ({ navigation }) => {
   const [deliveryAddress, setDeliveryAddress] = useState({
     Name: 'Furqan Farooq',
     PhoneNumber: '03360303085',
@@ -13,7 +50,8 @@ const ConfirmScreen = ({ navigation }) => { // Add navigation prop
 
   const [isEditModalVisible, setEditModalVisible] = useState(false);
   const [editedAddress, setEditedAddress] = useState({ ...deliveryAddress });
-  const [showFullList, setShowFullList] = useState(false);
+  const [showAllProducts, setShowAllProducts] = useState(false);
+  const [orders, setOrders] = useState(INITIAL_ORDERS);
 
   const handleSaveAddress = () => {
     setDeliveryAddress(editedAddress);
@@ -24,26 +62,34 @@ const ConfirmScreen = ({ navigation }) => { // Add navigation prop
     setEditedAddress({ ...editedAddress, [field]: value });
   };
 
-  const productList = [
-    { id: 1, name: "Product 1", quantity: 2, price: 300 },
-    { id: 2, name: "Product 2", quantity: 1, price: 40 },
-    { id: 3, name: "Product 3", quantity: 1, price: 27 },
-    { id: 4, name: "Product 4", quantity: 1, price: 50 },
-    { id: 5, name: "Product 5", quantity: 1, price: 60 },
-    { id: 6, name: "Product 6", quantity: 1, price: 70 },
-  ];
+  const increaseQuantity = (id) => {
+    const updatedOrders = orders.map((item) =>
+      item.id === id ? { ...item, quantity: item.quantity + 1 } : item
+    );
+    setOrders(updatedOrders);
+  };
 
-  const productTotal = productList.reduce((total, product) => total + product.price * product.quantity, 0);
-  const deliveryCharges = 200;
-  const platformFee = 10;
-  const total = productTotal + deliveryCharges + platformFee;
-  const initialProductCount = 3;
+  const decreaseQuantity = (id) => {
+    const updatedOrders = orders.map((item) =>
+      item.id === id && item.quantity > 1 ? { ...item, quantity: item.quantity - 1 } : item
+    );
+    setOrders(updatedOrders);
+  };
+
+  const subtotal = orders.reduce((total, item) => total + item.price * item.quantity, 0);
+  const deliveryCharge = 200;
+  const packingFee = 10;
+  const totalOrderAmount = subtotal + deliveryCharge + packingFee;
+
+  const copyToClipboard = async (text) => {
+    await Clipboard.setStringAsync(text);
+    Alert.alert("Copied to Clipboard", "Order number has been copied.");
+  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.container}>
         <View style={styles.centerContent}>
-          {/* Add the back arrow and title in the same row */}
           <View style={styles.headerRow}>
             <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
               <Icon name="arrow-back" size={24} color="#333" />
@@ -71,54 +117,47 @@ const ConfirmScreen = ({ navigation }) => { // Add navigation prop
           </View>
 
           <View style={styles.box}>
-            <Text style={styles.title}>Order Summary</Text>
+            <Text style={styles.title}>Order Summary ({orders.length})</Text>
 
-            <View style={styles.productListContainer}>
-              {productList.slice(0, showFullList ? productList.length : initialProductCount).map((product) => (
-                <View key={product.id} style={styles.productRow}>
-                  <Text style={styles.productName}>
-                    {product.quantity}x {product.name}
-                  </Text>
-                  <Text style={styles.productPrice}>Rs. {(product.price * product.quantity).toFixed(2)}</Text>
-                </View>
+            <View style={styles.productsListContainer}>
+              {orders.slice(0, showAllProducts ? orders.length : 1).map((item) => (
+                <ListItem
+                  key={item.id}
+                  item={item}
+                  increaseQuantity={increaseQuantity}
+                  decreaseQuantity={decreaseQuantity}
+                />
               ))}
             </View>
 
-            {productList.length > initialProductCount && (
-              <TouchableOpacity onPress={() => setShowFullList(!showFullList)}>
-                <Text style={styles.showMoreButton}>
-                  {showFullList ? 'Show Less' : 'Show More'}
+            {orders.length > 1 && (
+              <TouchableOpacity
+                style={styles.showMoreButton}
+                onPress={() => setShowAllProducts(!showAllProducts)}
+              >
+                <Text style={styles.showMoreButtonText}>
+                  {showAllProducts ? 'Show Less' : `Show More (${orders.length - 1})`}
                 </Text>
               </TouchableOpacity>
             )}
 
-            <View style={styles.divider} />
-
-            <View style={styles.billingRow}>
-              <Text style={styles.billingLabel}>Subtotal</Text>
-              <Text style={styles.billingValue}>Rs. {productTotal.toFixed(2)}</Text>
-            </View>
-
-            <View style={styles.billingRow}>
-              <Text style={styles.billingLabel}>Standard Delivery</Text>
-              <Text style={styles.billingValue}>Rs. {deliveryCharges.toFixed(2)}</Text>
-            </View>
-
-            <View style={styles.billingRow}>
-              <Text style={styles.billingLabel}>Platform Fee </Text>
-              <Text style={styles.billingValue}>Rs. {platformFee.toFixed(2)}</Text>
-            </View>
-
-            <View style={styles.billingRow}>
-              <Text style={styles.billingLabel}>Payment Mode</Text>
-              <Text style={styles.billingValue}>Cash</Text>
-            </View>
-
-            <View style={styles.divider} />
-
-            <View style={styles.billingRow}>
-              <Text style={styles.billingLabel}>Total</Text>
-              <Text style={styles.billingValue}>Rs. {total.toFixed(2)}</Text>
+            <View style={styles.orderTotalContainer}>
+              <View style={styles.orderTotalRow}>
+                <Text style={styles.orderTotalText}>Subtotal</Text>
+                <Text style={styles.orderTotalAmount}>{subtotal.toFixed(2)}</Text>
+              </View>
+              <View style={styles.orderTotalRow}>
+                <Text style={styles.orderTotalText}>Delivery Charges</Text>
+                <Text style={styles.orderTotalAmount}>{deliveryCharge.toFixed(2)}</Text>
+              </View>
+              <View style={styles.orderTotalRow}>
+                <Text style={styles.orderTotalText}>Packing Fee</Text>
+                <Text style={styles.orderTotalAmount}>{packingFee.toFixed(2)}</Text>
+              </View>
+              <View style={styles.orderTotalRow}>
+                <Text style={styles.orderTotalText}>Total</Text>
+                <Text style={styles.orderTotalAmount}>{totalOrderAmount.toFixed(2)}</Text>
+              </View>
             </View>
 
             <TouchableOpacity style={styles.confirmButton}>
@@ -170,6 +209,28 @@ const ConfirmScreen = ({ navigation }) => { // Add navigation prop
         </Modal>
       </ScrollView>
     </SafeAreaView>
+  );
+};
+
+const ListItem = ({ item, increaseQuantity, decreaseQuantity }) => {
+  return (
+    <View style={styles.task}>
+      <Image source={item.image} style={styles.image} />
+      <View style={styles.itemDetails}>
+        <Text style={styles.itemName}>{item.name}</Text>
+        <Text style={styles.itemDescription}>{item.description}</Text>
+        <Text style={styles.itemPrice}>Rs. {(item.price * item.quantity).toFixed(2)}</Text>
+      </View>
+      <View style={styles.quantityContainer}>
+        <TouchableOpacity onPress={() => decreaseQuantity(item.id)} style={styles.quantityButton}>
+          <Text style={styles.quantityButtonText}>-</Text>
+        </TouchableOpacity>
+        <Text style={styles.quantityText}>{item.quantity}</Text>
+        <TouchableOpacity onPress={() => increaseQuantity(item.id)} style={styles.quantityButton}>
+          <Text style={styles.quantityButtonText}>+</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
   );
 };
 
@@ -241,41 +302,86 @@ const styles = StyleSheet.create({
     color: '#666',
     marginBottom: 5,
   },
-  productListContainer: {
-    marginTop: 10, // Added spacing here
+  productsListContainer: {
+    marginBottom: 10,
   },
-  productRow: {
+  task: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 6,
+    alignItems: 'center',
+    width: '100%',
+    height: 100,
+    padding: 10,
+    backgroundColor: 'white',
+    borderRadius: 15,
+    marginBottom: 10,
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 10 },
+    shadowRadius: 5,
+    elevation: 5,
   },
-  productName: {
-    fontSize: 14,
-    color: '#333',
+  image: {
+    width: 60,
+    height: 60,
+    borderRadius: 10,
+    marginRight: 15,
   },
-  productPrice: {
-    fontSize: 14,
+  itemDetails: {
+    flex: 1,
+  },
+  itemName: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  itemDescription: {
+    fontSize: 12,
+    color: 'gray',
+  },
+  itemPrice: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginTop: 5,
+  },
+  quantityContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  quantityButton: {
+    backgroundColor: '#f0f0f0',
+    borderRadius: 20,
+    width: 30,
+    height: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  quantityButtonText: {
+    fontSize: 18,
     fontWeight: 'bold',
     color: '#333',
   },
-  billingRow: {
+  quantityText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginHorizontal: 10,
+  },
+  orderTotalContainer: {
+    marginTop: 10,
+    paddingTop: 25,
+    borderTopWidth: 1,
+    borderTopColor: '#E0E0E0',
+  },
+  orderTotalRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 8,
+    marginBottom: 5,
   },
-  billingLabel: {
+  orderTotalText: {
     fontSize: 14,
-    color: '#333',
+    fontWeight: 'bold',
   },
-  billingValue: {
+  orderTotalAmount: {
     fontSize: 14,
     fontWeight: 'bold',
     color: '#333',
-  },
-  divider: {
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
-    marginVertical: 8,
   },
   confirmButton: {
     backgroundColor: '#000',
@@ -321,11 +427,12 @@ const styles = StyleSheet.create({
     marginTop: 16,
   },
   showMoreButton: {
+    alignItems: 'center',
+  },
+  showMoreButtonText: {
     fontSize: 14,
     fontWeight: 'bold',
     color: '#000',
-    textAlign: 'center',
-    marginTop: 8,
   },
 });
 
