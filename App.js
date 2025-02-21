@@ -18,7 +18,6 @@ import DeliveryAddressScreen from './Screens/Authentication/TabNavigationScreens
 import NotificationScreen from './Screens/Authentication/TabNavigationScreens/NotificationScreen';
 import VerificationOtpScreen from './Screens/Authentication/TabNavigationScreens/VerficationOptScreen';
 import CustomerSupportScreen from './Screens/Authentication/TabNavigationScreens/CustomerSupportScreen';
-import FeedBackScreen from './Screens/Authentication/TabNavigationScreens/FeedBackScreen';
 
 const Stack = createStackNavigator();
 
@@ -48,7 +47,7 @@ export default function App() {
         <Stack.Screen name="Notification" component={NotificationScreen} />
         <Stack.Screen name="Verification" component={VerificationOtpScreen} />
         <Stack.Screen name="CustomerSupport" component={CustomerSupportScreen} />
-        <Stack.Screen name="FeedBack" component={FeedBackScreen} />
+        
         
         
         
