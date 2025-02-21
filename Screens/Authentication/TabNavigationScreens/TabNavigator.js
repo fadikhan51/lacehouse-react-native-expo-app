@@ -11,6 +11,7 @@ import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import HomeScreen from "./HomeScreen";
 import CartScreen from "./CartScreen";
 import NotificationsScreen from "./NotificationsScreen";
+import WishlistScreen from "./WishListScreen";
 import ProfileSettings from "./ProfileSettings";
 import { useEffect, useRef } from "react";
 import * as Animatable from "react-native-animatable";
@@ -31,11 +32,11 @@ const TabArr = [
     component: CartScreen,
   },
   {
-    route: "Feed",
-    label: "Feed",
+    route: "Favorites",
+    label: "Favorites",
     activeIcon: <NotificationActive width={17} height={17} />,
     inActiveIcon: <NotificationUncative width={35} height={35} />,
-    component: NotificationsScreen,
+    component: WishlistScreen,
   },
   {
     route: "Settings",
@@ -105,7 +106,7 @@ const TabButton = (props) => {
   );
 };
 
-export default function TabNavigator() {
+export default function TabNavigator({route, navigation}) {
   return (
     <Tab.Navigator
       screenOptions={{

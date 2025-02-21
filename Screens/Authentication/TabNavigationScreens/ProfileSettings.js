@@ -3,7 +3,7 @@ import React from 'react';
 import { View, Text, SafeAreaView, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-const ProfileSettings = () => {
+const ProfileSettings = ({route, navigation}) => {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView>
@@ -12,25 +12,25 @@ const ProfileSettings = () => {
         </View>
 
         <View style={styles.section}>
-          <TouchableOpacity style={styles.menuItem}>
+          <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('EditProfile')}>
             <Ionicons name="person-outline" size={24} color="black" />
             <Text style={styles.menuText}>Edit Profile</Text>
             <Ionicons name="chevron-forward" size={24} color="black" />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.menuItem}>
+          <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('ChangePassword')}>
             <Ionicons name="lock-closed-outline" size={24} color="black" />
             <Text style={styles.menuText}>Change Password</Text>
             <Ionicons name="chevron-forward" size={24} color="black" />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.menuItem}>
+          <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('Notification')}>
             <Ionicons name="notifications-outline" size={24} color="black" />
             <Text style={styles.menuText}>Notifications</Text>
             <Ionicons name="chevron-forward" size={24} color="black" />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.menuItem}>
+          <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('PrivacyPolicy')}>
             <Ionicons name="shield-outline" size={24} color="black" />
             <Text style={styles.menuText}>Privacy</Text>
             <Ionicons name="chevron-forward" size={24} color="black" />
