@@ -21,6 +21,7 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native"; 
 import images from "../../../Constants/images";
 
 const LIST_ITEM_HEIGHT = 100;
@@ -56,6 +57,7 @@ const INITIAL_CART = [
 
 const CartScreen = () => {
   const [cart, setCart] = useState(INITIAL_CART);
+  const navigation = useNavigation(); 
 
   const onDismiss = (item) => {
     setCart((cart) => cart.filter((cartItem) => cartItem.id !== item.id));
@@ -74,6 +76,10 @@ const CartScreen = () => {
     );
   };
 
+  const handleCheckout = () => {
+    navigation.navigate("CartDone"); 
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <GestureHandlerRootView style={styles.container}>
@@ -89,17 +95,16 @@ const CartScreen = () => {
           ))}
         </ScrollView>
         <View style={styles.totalContainer}>
-        <Text style={styles.totalText}>
-          Total ({cart.length} item{cart.length > 1 ? "s" : ""}) :{" "}
-        </Text>
-        <Text style={styles.totalPrice}>
-            $
+          <Text style={styles.totalText}>
+            Total ({cart.length} item{cart.length > 1 ? "s" : ""}) :{" "}
+          </Text>
+          <Text style={styles.totalPrice}>
             {cart
               .reduce((acc, item) => acc + item.price * item.quantity, 0)
               .toFixed(2)}
           </Text>
         </View>
-        <TouchableOpacity style={styles.checkoutButton}>
+        <TouchableOpacity style={styles.checkoutButton} onPress={handleCheckout}>
           <Text style={styles.checkoutButtonText}>Proceed to Checkout</Text>
         </TouchableOpacity>
       </GestureHandlerRootView>
@@ -170,7 +175,7 @@ const ListItem = ({ item, onDismiss, updateQuantity }) => {
             <Text style={styles.itemName}>{item.name}</Text>
             <Text style={styles.itemDescription}>{item.description}</Text>
             <Text style={styles.itemPrice}>
-              ${(item.price * item.quantity).toFixed(2)}
+              {(item.price * item.quantity).toFixed(2)}
             </Text>
           </View>
           <View style={styles.quantityContainer}>

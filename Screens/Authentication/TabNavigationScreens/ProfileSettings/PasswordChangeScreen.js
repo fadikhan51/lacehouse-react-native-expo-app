@@ -3,9 +3,9 @@ import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { TextInput } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
-import Icon from 'react-native-vector-icons/MaterialIcons';
 
-const PasswordChangeScreen = () => {
+
+const PasswordChangeScreen = ({route}) => {
   const navigation = useNavigation();
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -42,19 +42,14 @@ const PasswordChangeScreen = () => {
       return;
     }
 
-    Alert.alert('Success', 'Password changed successfully!');
+    navigation.navigate('ChangePasswordSuccessful');
   };
 
   const passwordRules = validatePassword(newPassword);
 
   return (
     <SafeAreaView style={styles.container}>
-      <TouchableOpacity
-        style={styles.backButton}
-        onPress={() => navigation.goBack()}
-      >
-        <Icon name="arrow-back" size={24} color="#000" />
-      </TouchableOpacity>
+      
 
       <View style={styles.headingContainer}>
         <Text style={styles.heading}>Change Password</Text>
@@ -138,7 +133,7 @@ const PasswordChangeScreen = () => {
 
         <TouchableOpacity
           style={styles.button}
-          onPress={handlePasswordChange}
+          onPress={()=>navigation.navigate('PasswordChangeSuccessful')}
         >
           <Text style={styles.buttonText}>Change Password</Text>
         </TouchableOpacity>
@@ -153,12 +148,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     justifyContent: 'center',
   },
-  backButton: {
-    position: 'absolute',
-    top: 40,
-    left: 20,
-    marginBottom: 10,
-  },
+
   headingContainer: {
     alignItems: 'center',
     marginBottom: 20,
@@ -215,4 +205,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default PasswordChangeScreen;    
+export default PasswordChangeScreen;

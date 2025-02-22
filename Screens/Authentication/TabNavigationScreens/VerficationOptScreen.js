@@ -41,8 +41,7 @@ const VerificationOtpScreen = ({ navigation, route }) => {
 
     try {
       setLoading(true);
-      Alert.alert('Success', 'Email verified successfully!');
-      navigation.navigate('Home');
+      navigation.navigate('OrderScreen');
     } catch (error) {
       Alert.alert('Error', error?.message || 'Failed to verify email');
     } finally {

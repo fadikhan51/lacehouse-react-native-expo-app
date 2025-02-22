@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Modal, Button, SafeAreaView, Image, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView, Image, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import * as Clipboard from 'expo-clipboard';
 import images from "../../../Constants/images";
@@ -39,7 +39,7 @@ const INITIAL_ORDERS = [
   },
 ];
 
-const ConfirmScreen = ({ navigation }) => {
+function ConfirmScreen({ route, navigation }) {
   const [deliveryAddress, setDeliveryAddress] = useState({
     Name: 'Furqan Farooq',
     PhoneNumber: '03360303085',
@@ -48,18 +48,11 @@ const ConfirmScreen = ({ navigation }) => {
     country: 'Pakistan',
   });
 
-  const [isEditModalVisible, setEditModalVisible] = useState(false);
-  const [editedAddress, setEditedAddress] = useState({ ...deliveryAddress });
   const [showAllProducts, setShowAllProducts] = useState(false);
   const [orders, setOrders] = useState(INITIAL_ORDERS);
 
-  const handleSaveAddress = () => {
-    setDeliveryAddress(editedAddress);
-    setEditModalVisible(false);
-  };
-
-  const handleInputChange = (field, value) => {
-    setEditedAddress({ ...editedAddress, [field]: value });
+  const handleSaveAddress = (updatedAddress) => {
+    setDeliveryAddress(updatedAddress);
   };
 
   const increaseQuantity = (id) => {
@@ -91,16 +84,13 @@ const ConfirmScreen = ({ navigation }) => {
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.container}>
         <View style={styles.centerContent}>
           <View style={styles.headerRow}>
-            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-              <Icon name="arrow-back" size={24} color="#333" />
-            </TouchableOpacity>
             <Text style={[styles.screenTitle, { textAlign: 'left', marginLeft: 0 }]}>Order Confirmation</Text>
           </View>
 
           <View style={styles.box}>
             <View style={styles.header}>
               <Text style={styles.title}>Delivery Address</Text>
-              <TouchableOpacity onPress={() => setEditModalVisible(true)}>
+              <TouchableOpacity onPress={() => navigation.navigate('DeliveryAddress', { address: deliveryAddress, onSave: handleSaveAddress })}>
                 <Text style={styles.editButton}>Edit</Text>
               </TouchableOpacity>
             </View>
@@ -160,59 +150,20 @@ const ConfirmScreen = ({ navigation }) => {
               </View>
             </View>
 
-            <TouchableOpacity style={styles.confirmButton}>
+            <TouchableOpacity
+              style={styles.confirmButton}
+              onPress={() => navigation.navigate('Verification')} 
+            >
               <Text style={styles.confirmButtonText}>Place Order</Text>
             </TouchableOpacity>
           </View>
         </View>
-
-        <Modal visible={isEditModalVisible} animationType="slide" transparent={true}>
-          <View style={styles.modalContainer}>
-            <View style={styles.modalContent}>
-              <Text style={styles.modalTitle}>Edit Delivery Address</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Name"
-                value={editedAddress.Name}
-                onChangeText={(text) => handleInputChange('Name', text)}
-              />
-              <TextInput
-                style={styles.input}
-                placeholder="Phone Number"
-                value={editedAddress.PhoneNumber}
-                onChangeText={(text) => handleInputChange('PhoneNumber', text)}
-              />
-              <TextInput
-                style={styles.input}
-                placeholder="State"
-                value={editedAddress.state}
-                onChangeText={(text) => handleInputChange('state', text)}
-              />
-              <TextInput
-                style={styles.input}
-                placeholder="Address"
-                value={editedAddress.Address}
-                onChangeText={(text) => handleInputChange('Address', text)}
-              />
-              <TextInput
-                style={styles.input}
-                placeholder="Country"
-                value={editedAddress.country}
-                onChangeText={(text) => handleInputChange('country', text)}
-              />
-              <View style={styles.modalButtons}>
-                <Button title="Cancel" onPress={() => setEditModalVisible(false)} />
-                <Button title="Save" onPress={handleSaveAddress} />
-              </View>
-            </View>
-          </View>
-        </Modal>
       </ScrollView>
     </SafeAreaView>
   );
-};
+}
 
-const ListItem = ({ item, increaseQuantity, decreaseQuantity }) => {
+function ListItem({ item, increaseQuantity, decreaseQuantity }) {
   return (
     <View style={styles.task}>
       <Image source={item.image} style={styles.image} />
@@ -232,7 +183,7 @@ const ListItem = ({ item, increaseQuantity, decreaseQuantity }) => {
       </View>
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   safeArea: {
@@ -253,10 +204,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 14,
     width: '100%',
-  },
-  backButton: {
-    left: 0,
-    zIndex: 1,
   },
   screenTitle: {
     fontSize: 20,
@@ -394,37 +341,6 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-  modalContent: {
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    padding: 16,
-    width: '90%',
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 16,
-    color: '#333',
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 4,
-    padding: 8,
-    marginBottom: 8,
-    fontSize: 14,
-  },
-  modalButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 16,
   },
   showMoreButton: {
     alignItems: 'center',

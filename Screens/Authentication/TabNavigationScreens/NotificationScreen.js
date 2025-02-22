@@ -1,7 +1,5 @@
 import React from 'react';
-import { View, Text, ScrollView, StyleSheet, Image, TouchableOpacity, SafeAreaView } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { Ionicons } from '@expo/vector-icons';
+import { View, Text, ScrollView, StyleSheet, Image, SafeAreaView } from 'react-native';
 import images from "../../../Constants/images";
 
 const notifications = [
@@ -50,19 +48,11 @@ const notifications = [
 ];
 
 const NotificationScreen = () => {
-  const navigation = useNavigation();
-
+  
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-            <Ionicons name="arrow-back" size={24} color="#333" />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Notification</Text>
-          <View style={styles.emptyView} />
-        </View>
-
+        <Text style={styles.header}>Notifications</Text>
         <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false}>
           {notifications.map((notification) => (
             <View key={notification.id} style={styles.notificationCard}>
@@ -104,35 +94,18 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5f5f5',
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 5,
-    backgroundColor: 'white',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
-    shadowColor: 'transparent',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0,
-    shadowRadius: 0,
-    elevation: 0,
-  },
-  backButton: {
-    padding: 8,
-  },
-  headerTitle: {
-    fontSize: 18,
+    fontSize: 24,
     fontWeight: 'bold',
     color: '#333',
-  },
-  emptyView: {
-    width: 24,
+    textAlign: 'center',
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 10,
   },
   scrollContainer: {
     flex: 1,
     paddingHorizontal: 20,
-    paddingTop: 20,
+
     paddingBottom: 20,
   },
   notificationCard: {
@@ -153,7 +126,7 @@ const styles = StyleSheet.create({
     color: '#333',
   },
   notificationText: {
-    fontSize: 14,
+    fontSize: 16,
     color: '#666',
     marginBottom: 16,
     lineHeight: 22,
@@ -169,7 +142,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   singleImage: {
-    width: '100%',
+    width: '85%',
     height: 200,
   },
   twoImages: {

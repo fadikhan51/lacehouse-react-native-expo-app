@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import * as Clipboard from "expo-clipboard";
+import { useNavigation } from "@react-navigation/native";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
@@ -41,6 +42,7 @@ const INITIAL_ORDERS = [
 const OrderComplete = () => {
   const [orders, setOrders] = useState(INITIAL_ORDERS);
   const [showFullList, setShowFullList] = useState(false);
+  const navigation = useNavigation();
 
   const copyToClipboard = async (text) => {
     await Clipboard.setStringAsync(text);
@@ -138,7 +140,10 @@ const OrderComplete = () => {
             </View>
           </View>
 
-          <TouchableOpacity style={styles.continueShoppingButton}>
+          <TouchableOpacity 
+            style={styles.continueShoppingButton}
+            onPress={() => navigation.navigate('TabScreens')}
+          >
             <Text style={styles.continueShoppingText}>Continue Shopping</Text>
           </TouchableOpacity>
         </View>

@@ -10,9 +10,10 @@ import {
     Modal,
     Alert,
 } from 'react-native';
-import { countries } from 'country-data'; // Use country-data for country codes
-import { useNavigation } from '@react-navigation/native'; // Import useNavigation
-import { Ionicons } from '@expo/vector-icons'; // Import Ionicons for the back arrow
+
+import { countries } from 'country-data'; 
+import { useNavigation } from '@react-navigation/native'; 
+import { Ionicons } from '@expo/vector-icons'; 
 
 const citiesByProvince = {
     'Punjab': [
@@ -62,9 +63,9 @@ const citiesByProvince = {
 };
 
 const DeliveryAddressScreen = () => {
-    // State for form fields
+    const navigation = useNavigation();
     const [country, setCountry] = useState('Pakistan');
-    const [countryCode, setCountryCode] = useState('+92'); // Default country code for Pakistan
+    const [countryCode, setCountryCode] = useState('+92'); 
     const [contactName, setContactName] = useState('');
     const [mobileNumber, setMobileNumber] = useState('');
     const [streetAddress, setStreetAddress] = useState('');
@@ -74,21 +75,21 @@ const DeliveryAddressScreen = () => {
     const [zipCode, setZipCode] = useState('');
     const [isDefault, setIsDefault] = useState(false);
 
-    // State for country selection modal
+
     const [isCountryModalVisible, setIsCountryModalVisible] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [filteredCountries, setFilteredCountries] = useState([]);
 
-    // State for province selection modal
+
     const [isProvinceModalVisible, setIsProvinceModalVisible] = useState(false);
 
-    // State for city selection modal
+
     const [isCityModalVisible, setIsCityModalVisible] = useState(false);
     const [cities, setCities] = useState([]);
     const [citySearchQuery, setCitySearchQuery] = useState('');
     const [filteredCities, setFilteredCities] = useState([]);
 
-    // List of provinces
+
     const provinces = [
         'Azad Kashmir',
         'Balochistan',
@@ -101,16 +102,17 @@ const DeliveryAddressScreen = () => {
         'Other',
     ];
 
-    // Load all countries on component mount
+
+
     useEffect(() => {
         const allCountries = countries.all.map((country) => ({
             name: country.name,
-            code: country.countryCallingCodes[0] || '+0', // Use the first calling code
+            code: country.countryCallingCodes[0] || '+0', 
         }));
         setFilteredCountries(allCountries);
     }, []);
 
-    // Handle search input for countries
+
     const handleSearch = (query) => {
         setSearchQuery(query);
         const allCountries = countries.all.map((country) => ({
@@ -123,10 +125,10 @@ const DeliveryAddressScreen = () => {
         setFilteredCountries(filtered);
     };
 
-    // Handle country selection
+
     const handleSelectCountry = (selectedCountry) => {
         setCountry(selectedCountry.name);
-        setCountryCode(selectedCountry.code); // Update the country code
+        setCountryCode(selectedCountry.code); 
         setIsCountryModalVisible(false);
         setSearchQuery('');
         setFilteredCountries(
@@ -137,7 +139,7 @@ const DeliveryAddressScreen = () => {
         );
     };
 
-    // Handle province selection
+
     const handleSelectProvince = (selectedProvince) => {
         setProvince(selectedProvince);
         setCities(citiesByProvince[selectedProvince] || []);
@@ -145,13 +147,14 @@ const DeliveryAddressScreen = () => {
         setIsProvinceModalVisible(false);
     };
 
-    // Handle city selection
+
     const handleSelectCity = (selectedCity) => {
         setCity(selectedCity);
         setIsCityModalVisible(false);
     };
 
-    // Handle city search
+
+
     const handleCitySearch = (query) => {
         setCitySearchQuery(query);
         const filtered = cities.filter((city) =>
@@ -160,7 +163,7 @@ const DeliveryAddressScreen = () => {
         setFilteredCities(filtered);
     };
 
-    // Handle form submission
+
     const handleSubmit = () => {
         const address = {
             country,
@@ -175,12 +178,13 @@ const DeliveryAddressScreen = () => {
             isDefault,
         };
         console.log('Submitted Address:', address);
+        navigation.navigate('CartDone');
     };
 
     return (
         <ScrollView contentContainerStyle={styles.scrollContainer}>
             <View style={styles.container}>
-                {/* Country/Region Section */}
+        
               <View style={styles.section}>
               <View style={styles.section}>
               <Text style={styles.sectionTitle}>Country/region</Text>
@@ -191,7 +195,7 @@ const DeliveryAddressScreen = () => {
             </View>
                 </View>
 
-                {/* Country Selection Modal */}
+                
                 <Modal
                     visible={isCountryModalVisible}
                     animationType="slide"
@@ -228,7 +232,7 @@ const DeliveryAddressScreen = () => {
                     </View>
                 </Modal>
 
-                {/* Contact Information Section */}
+                
                 <View style={styles.section}>
                     <Text style={styles.sectionTitle}>Contact information</Text>
                     <Text style={styles.label}>Contact name</Text>
@@ -309,7 +313,7 @@ const DeliveryAddressScreen = () => {
                     />
                 </View>
 
-                {/* Province Selection Modal */}
+                
                 <Modal
                     visible={isProvinceModalVisible}
                     animationType="slide"
@@ -338,7 +342,7 @@ const DeliveryAddressScreen = () => {
                     </View>
                 </Modal>
 
-                {/* City Selection Modal */}
+                
                 <Modal
                     visible={isCityModalVisible}
                     animationType="slide"
@@ -374,7 +378,7 @@ const DeliveryAddressScreen = () => {
                     </View>
                 </Modal>
 
-                {/* Default Shipping Address Checkbox */}
+                
                 <View style={styles.checkboxContainer}>
                     <TouchableOpacity onPress={() => setIsDefault(!isDefault)}>
                         <View style={styles.checkbox}>
@@ -384,7 +388,7 @@ const DeliveryAddressScreen = () => {
                     <Text style={styles.checkboxLabel}>Set as default shipping address</Text>
                 </View>
 
-                {/* Submit Button */}
+                
                 <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
                     <Text style={styles.submitButtonText}>Submit Address</Text>
                 </TouchableOpacity>

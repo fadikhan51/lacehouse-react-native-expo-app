@@ -5,9 +5,6 @@ import { Ionicons } from '@expo/vector-icons';
 const PrivacyPolicyScreen = ({ navigation }) => {
   return (
     <ScrollView style={styles.container}>
-      <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-        <Ionicons name="arrow-back" size={24} color="black" />
-      </TouchableOpacity>
 
       <Text style={styles.title}>Privacy Policy</Text>
       <Text style={styles.effectiveDate}>LACE_HOUSE PRIVACY POLICY — YOUR PRIVACY RIGHTS</Text>
@@ -100,9 +97,10 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 8,
+    marginBottom: 10,
     textAlign: 'center',
-    marginTop: 16,
+    marginTop: 40
+,
   },
   effectiveDate: {
     fontSize: 14,
@@ -113,7 +111,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    marginTop: 16,
+    marginTop: 8,
     marginBottom: 8,
   },
   text: {

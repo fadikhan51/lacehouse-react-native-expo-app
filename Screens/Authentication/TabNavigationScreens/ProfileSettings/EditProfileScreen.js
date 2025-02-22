@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Alert } from 'react-native';
+import React, { useState, useRef } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Alert, PanResponder, Animated } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
+import images from "../../../../Constants/images";
 
 const EditProfileScreen = () => {
   const navigation = useNavigation();
@@ -13,7 +14,19 @@ const EditProfileScreen = () => {
   const [dateOfBirth, setDateOfBirth] = useState('');
   const [profileImage, setProfileImage] = useState(null);
 
-  const defaultImage = 'https://dummyimage.com/150/000000/000000';
+  const pan = useRef(new Animated.ValueXY()).current;
+
+  const panResponder = useRef(
+    PanResponder.create({
+      onMoveShouldSetPanResponder: () => true,
+      onPanResponderMove: Animated.event([null, { dx: pan.x, dy: pan.y }], { useNativeDriver: false }),
+      onPanResponderRelease: () => {
+        pan.extractOffset();
+      },
+    })
+  ).current;
+
+  const defaultImage = images.bag2;
 
   const handleImagePick = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -41,25 +54,29 @@ const EditProfileScreen = () => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color="#000" />
-        </TouchableOpacity>
         <Text style={styles.headerTitle}>Edit Profile</Text>
       </View>
 
       <View style={styles.imageContainer}>
-        <TouchableOpacity onPress={handleImagePick} style={styles.profileImageWrapper}>
-          {profileImage ? (
-            <Image source={{ uri: profileImage }} style={styles.profileImage} />
-          ) : (
-            <View style={styles.imagePlaceholder}>
-              <Image source={{ uri: defaultImage }} style={styles.defaultImage} />
+        <Animated.View
+          style={{
+            transform: [{ translateX: pan.x }, { translateY: pan.y }],
+          }}
+          {...panResponder.panHandlers}
+        >
+          <TouchableOpacity onPress={handleImagePick} style={styles.profileImageWrapper}>
+            {profileImage ? (
+              <Image source={{ uri: profileImage }} style={styles.profileImage} />
+            ) : (
+              <View style={styles.imagePlaceholder}>
+                <Image source={defaultImage} style={styles.defaultImage} />
+              </View>
+            )}
+            <View style={styles.cameraIconContainer}>
+              <Ionicons name="camera" size={20} color="#fff" />
             </View>
-          )}
-          <View style={styles.cameraIconContainer}>
-            <Ionicons name="camera" size={20} color="#fff" />
-          </View>
-        </TouchableOpacity>
+          </TouchableOpacity>
+        </Animated.View>
       </View>
 
       <View style={styles.inputContainer}>
@@ -127,20 +144,17 @@ const styles = StyleSheet.create({
   },
   header: {
     position: 'absolute',
-    top: 40,
+    top: 80,
     left: 20,
   },
-  backButton: {
-    marginBottom: 10,
-  },
   headerTitle: {
-    fontSize: 20,
+    fontSize: 25,
     fontWeight: 'bold',
     color: '#000',
   },
   imageContainer: {
     alignItems: 'center',
-    marginTop: 80,
+    marginTop: 100,
     marginBottom: 30,
   },
   profileImageWrapper: {
@@ -163,8 +177,9 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   defaultImage: {
-    width: '100%',
-    height: '100%',
+    width: '80%',
+    height: '80%',
+    borderRadius: 100,
   },
   cameraIconContainer: {
     position: 'absolute',

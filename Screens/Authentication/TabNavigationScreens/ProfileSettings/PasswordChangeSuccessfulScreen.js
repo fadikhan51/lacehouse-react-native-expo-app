@@ -17,7 +17,7 @@ const PasswordChangeSuccessfulScreen = () => {
         </Text>
         <Button
           mode="contained"
-          onPress={() => navigation.navigate('Home')}
+          onPress={() => navigation.reset({index:0, routes:[{name:'TabScreens'}]})}
           style={styles.button}
           labelStyle={styles.buttonText}
         >
