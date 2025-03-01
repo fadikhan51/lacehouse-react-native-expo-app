@@ -13,12 +13,20 @@ import PrivacyPolicyScreen from './Screens/Authentication/TabNavigationScreens/P
 import PasswordChangeSuccessfulScreen from './Screens/Authentication/TabNavigationScreens/ProfileSettings/PasswordChangeSuccessfulScreen';  
 import WishlistScreen from './Screens/Authentication/TabNavigationScreens/WishListScreen';   
 import OrderComplete from './Screens/Authentication/TabNavigationScreens/OrderComplete';
-import  ConfirmScreen from './Screens/Authentication/TabNavigationScreens/ConfirmScreen';
+import ConfirmScreen from './Screens/Authentication/TabNavigationScreens/ConfirmScreen';
 import DeliveryAddressScreen from './Screens/Authentication/TabNavigationScreens/DeliveryAddressScreen';
 import NotificationScreen from './Screens/Authentication/TabNavigationScreens/NotificationScreen';
 import VerificationOtpScreen from './Screens/Authentication/TabNavigationScreens/VerficationOptScreen';
 import CustomerSupportScreen from './Screens/Authentication/TabNavigationScreens/CustomerSupportScreen';
-// import FeedBackScreen from './Screens/Authentication/TabNavigationScreens/FeedBackScreen';
+import OrderAdminScreen from './Screens/Authentication/TabNavigationScreens/AdminAppScreens/OrderAdminScreen';
+import AdminComponentsScreen from './Screens/Authentication/TabNavigationScreens/AdminAppScreens/AdminComponentsScreen';
+import OrderDetailAdminScreen from './Screens/Authentication/TabNavigationScreens/AdminAppScreens/OrderDetailAdminScreen';
+import ProductDetailAdminScreen from './Screens/Authentication/TabNavigationScreens/AdminAppScreens/ProductDetailAdminScreen';  
+import NotificationAdminScreen from './Screens/Authentication/TabNavigationScreens/AdminAppScreens/NotificationAdminScreen';  
+import AdminLoginScreen from './Screens/Authentication/TabNavigationScreens/AdminAppScreens/AdminLoginScreen';
+import LoginPageAdminScreen from './Screens/Authentication/TabNavigationScreens/AdminAppScreens/LoginPageAdminScreen';
+import FeedbackAdminScreen from './Screens/Authentication/TabNavigationScreens/AdminAppScreens/FeedBackAdminScreen';
+import DashBoardAdminScreen from './Screens/Authentication/TabNavigationScreens/AdminAppScreens/DashBoardAdminScreen';  
 
 const Stack = createStackNavigator();
 
@@ -27,7 +35,7 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator 
-        initialRouteName="TabScreens"
+        initialRouteName="AdminLogin"
         screenOptions={{
           headerShown: false
         }}
@@ -48,7 +56,15 @@ export default function App() {
         <Stack.Screen name="Notification" component={NotificationScreen} />
         <Stack.Screen name="Verification" component={VerificationOtpScreen} />
         <Stack.Screen name="CustomerSupport" component={CustomerSupportScreen} />
-        {/* <Stack.Screen name="FeedBack" component={FeedBackScreen} /> */}
+        <Stack.Screen name="OrderAdmin" component={OrderAdminScreen} />
+        <Stack.Screen name="AdminComponents" component={AdminComponentsScreen} />
+        <Stack.Screen name="OrderDetailAdmin" component={OrderDetailAdminScreen} />
+        <Stack.Screen name="ProductDetailAdmin" component={ProductDetailAdminScreen} /> 
+        <Stack.Screen name="NotificationAdmin" component={NotificationAdminScreen} />
+        <Stack.Screen name="AdminLogin" component={AdminLoginScreen} />
+        <Stack.Screen name="LoginPageAdmin" component={LoginPageAdminScreen} />
+        <Stack.Screen name="FeedbackAdmin" component={FeedbackAdminScreen} />
+        <Stack.Screen name="DashBoardAdmin" component={DashBoardAdminScreen} />
         
         
         
