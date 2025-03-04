@@ -7,13 +7,13 @@ const fetchOrders = async () => {
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve([
-        { id: '1', subTotal: '10.00', grandTotal: '10.00', orderDate: '2/25/25', status: 'Deliverd', deliveryAddress: 'Dr saima st, Afshan st, Lahore' },
+        { id: '1', subTotal: '10.00', grandTotal: '10.00', orderDate: '2/25/25', status: 'Delivered', deliveryAddress: 'Dr saima st, Afshan st, Lahore' },
         { id: '2', subTotal: '30.00', grandTotal: '32.00', orderDate: '2/20/25', status: 'Pending', deliveryAddress: 'Dr saima st, Afshan st, Lahore' },
         { id: '3', subTotal: '10.00', grandTotal: '10.00', orderDate: '2/21/25', status: 'Shipped', deliveryAddress: 'Dr saima st, Afshan st, Lahore' },
-        { id: '4', subTotal: '15.00', grandTotal: '16.00', orderDate: '2/23/25', status: 'Deliverd', deliveryAddress: 'Dr saima st, Afshan st, Lahore' },
+        { id: '4', subTotal: '15.00', grandTotal: '16.00', orderDate: '2/23/25', status: 'Delivered', deliveryAddress: 'Dr saima st, Afshan st, Lahore' },
         { id: '5', subTotal: '15.00', grandTotal: '16.00', orderDate: '2/22/25', status: 'Pending', deliveryAddress: 'Dr saima st, Afshan st, Lahore' },
         { id: '6', subTotal: '15.00', grandTotal: '16.00', orderDate: '2/26/25', status: 'Shipped', deliveryAddress: 'Dr saima st, Afshan st, Lahore' },
-        { id: '7', subTotal: '15.00', grandTotal: '16.00', orderDate: '2/26/25', status: 'Deliverd', deliveryAddress: 'Dr saima st, Afshan st, Lahore' },
+        { id: '7', subTotal: '15.00', grandTotal: '16.00', orderDate: '2/26/25', status: 'Delivered', deliveryAddress: 'Dr saima st, Afshan st, Lahore' },
       ]);
     }, 1000);
   });
@@ -46,7 +46,7 @@ const OrderAdminScreen = () => {
 
   const totalOrders = data.length;
   const pendingOrders = data.filter((item) => item.status === 'Pending').length;
-  const completeOrders = data.filter((item) => item.status === 'Deliverd').length;
+  const completeOrders = data.filter((item) => item.status === 'Delivered').length;
   const shippedOrders = data.filter((item) => item.status === 'Shipped').length;
 
   const toggleFilter = () => {
@@ -59,11 +59,7 @@ const OrderAdminScreen = () => {
   };
 
   const toggleAddress = (id) => {
-    if (visibleAddressId === id) {
-      setVisibleAddressId(null);
-    } else {
-      setVisibleAddressId(id);
-    }
+    setVisibleAddressId(visibleAddressId === id ? null : id);
   };
 
   const displayedData = data.filter((item) => {
@@ -75,20 +71,17 @@ const OrderAdminScreen = () => {
   const pendingOrdersData = data.filter((item) => item.status === 'Pending');
 
   const handleUpdateStatus = (orderId, newStatus) => {
-    const updatedData = data.map((item) => {
-      if (item.id === orderId) {
-        return { ...item, status: newStatus };
-      }
-      return item;
-    });
+    const updatedData = data.map((item) => 
+      item.id === orderId ? { ...item, status: newStatus } : item
+    );
     setData(updatedData);
-    Alert.alert('Success', `Order ${orderId} status updated to ${newStatus}`);
+    Alert.alert('Status Updated', `Order ${orderId} is now ${newStatus}`);
   };
 
   const handleOrderIdSubmit = () => {
     const order = data.find((item) => item.id === orderIdInput);
     if (order) {
-      Alert.alert('Order Found', `Order ID: ${order.id}, Status: ${order.status}`);
+      Alert.alert('Order Details', `ID: ${order.id}\nStatus: ${order.status}`);
     } else {
       Alert.alert('Error', 'Order not found');
     }
@@ -97,149 +90,144 @@ const OrderAdminScreen = () => {
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#0000ff" />
-        <Text>Loading orders...</Text>
+        <ActivityIndicator size="large" color="#333" />
+        <Text style={styles.loadingText}>Loading orders...</Text>
       </View>
     );
   }
 
   return (
     <ScrollView style={styles.container}>
-      <Text style={styles.screenName}>Order Screen</Text>
+      <Text style={styles.screenTitle}>Order Management</Text>
 
-      {/* Summary Box */}
-      <View style={styles.summaryBox}>
-        <View style={styles.summaryItem}>
-          <Text style={styles.summaryLabel}>Total Orders</Text>
-          <Text style={styles.summaryValue}>{totalOrders}</Text>
+      {/* Summary Statistics */}
+      <View style={styles.statsContainer}>
+        <View style={styles.statCard}>
+          <Text style={styles.statLabel}>Total Orders</Text>
+          <Text style={styles.statValue}>{totalOrders}</Text>
         </View>
-        <View style={styles.summaryItem}>
-          <Text style={styles.summaryLabel}>Pending Orders</Text>
-          <Text style={styles.summaryValue}>{pendingOrders}</Text>
+        <View style={styles.statCard}>
+          <Text style={styles.statLabel}>Pending</Text>
+          <Text style={styles.statValue}>{pendingOrders}</Text>
         </View>
-        <View style={styles.summaryItem}>
-          <Text style={styles.summaryLabel}>Delivered Orders</Text>
-          <Text style={styles.summaryValue}>{completeOrders}</Text>
+        <View style={styles.statCard}>
+          <Text style={styles.statLabel}>Delivered</Text>
+          <Text style={styles.statValue}>{completeOrders}</Text>
         </View>
-        <View style={styles.summaryItem}>
-          <Text style={styles.summaryLabel}>Shipped Orders</Text>
-          <Text style={styles.summaryValue}>{shippedOrders}</Text>
+        <View style={styles.statCard}>
+          <Text style={styles.statLabel}>Shipped</Text>
+          <Text style={styles.statValue}>{shippedOrders}</Text>
         </View>
       </View>
 
-      {/* Order ID Input and Status Update Box */}
-      <View style={styles.orderIdBox}>
-        <Text style={styles.orderIdTitle}>Update Order Status</Text>
-        <TextInput
-          style={styles.orderIdInput}
-          placeholder="Enter Order ID"
-          value={orderIdInput}
-          onChangeText={setOrderIdInput}
-        />
-        <View style={styles.statusButtonsContainer}>
-          <TouchableOpacity
-            style={[styles.statusButton, styles.pendingButton]}
-            onPress={() => handleUpdateStatus(orderIdInput, 'Pending')}
-          >
-            <Text style={styles.statusButtonText}>Set Pending</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.statusButton, styles.shippedButton]}
-            onPress={() => handleUpdateStatus(orderIdInput, 'Shipped')}
-          >
-            <Text style={styles.statusButtonText}>Set Shipped</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.statusButton, styles.deliveredButton]}
-            onPress={() => handleUpdateStatus(orderIdInput, 'Deliverd')}
-          >
-            <Text style={styles.statusButtonText}>Set Delivered</Text>
-          </TouchableOpacity>
+      {/* Order Status Update */}
+      <View style={styles.orderUpdateContainer}>
+        <Text style={styles.sectionTitle}>Update Order Status</Text>
+        <View style={styles.inputRow}>
+          <TextInput
+            style={styles.orderInput}
+            placeholder="Enter Order ID"
+            placeholderTextColor="#666"
+            value={orderIdInput}
+            onChangeText={setOrderIdInput}
+          />
+        </View>
+        <View style={styles.actionButtonContainer}>
+          {['Pending', 'Shipped', 'Delivered'].map((status) => (
+            <TouchableOpacity
+              key={status}
+              style={[styles.actionButton, styles[`${status.toLowerCase()}Button`]]}
+              onPress={() => handleUpdateStatus(orderIdInput, status)}
+            >
+              <Text style={styles.actionButtonText}>Set {status}</Text>
+            </TouchableOpacity>
+          ))}
         </View>
       </View>
 
-      {/* Search and Filter Section */}
-      <View style={styles.searchFilterContainer}>
-        <TextInput
-          style={styles.searchBar}
-          placeholder="Search..."
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-        />
-        <TouchableOpacity onPress={toggleFilter} style={styles.filterIcon}>
-          <Icon name="filter-list" size={24} color="#000" />
+      {/* Search and Filter */}
+      <View style={styles.searchContainer}>
+        <View style={styles.searchInputWrapper}>
+          <Icon name="search" size={20} color="#666" style={styles.searchIcon} />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search orders..."
+            placeholderTextColor="#666"
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+          />
+        </View>
+        <TouchableOpacity onPress={toggleFilter} style={styles.filterButton}>
+          <Icon name="filter-list" size={24} color="#333" />
         </TouchableOpacity>
       </View>
 
       {/* Filter Modal */}
       <Modal
-        visible={isFilterVisible}
         transparent={true}
-        animationType="slide"
+        visible={isFilterVisible}
+        animationType="fade"
         onRequestClose={() => setIsFilterVisible(false)}
       >
         <TouchableWithoutFeedback onPress={() => setIsFilterVisible(false)}>
           <View style={styles.modalOverlay}>
-            <View style={styles.filterDropdown}>
-              <TouchableOpacity onPress={() => handleFilterSelect('All')} style={styles.filterOption}>
-                <Text style={styles.filterOptionText}>All</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => handleFilterSelect('Deliverd')} style={styles.filterOption}>
-                <Text style={styles.filterOptionText}>Delivered</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => handleFilterSelect('Pending')} style={styles.filterOption}>
-                <Text style={styles.filterOptionText}>Pending</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => handleFilterSelect('Shipped')} style={styles.filterOption}>
-                <Text style={styles.filterOptionText}>Shipped</Text>
-              </TouchableOpacity>
+            <View style={styles.filterModal}>
+              {['All', 'Delivered', 'Pending', 'Shipped'].map((filterOption) => (
+                <TouchableOpacity
+                  key={filterOption}
+                  style={styles.filterOption}
+                  onPress={() => handleFilterSelect(filterOption)}
+                >
+                  <Text style={styles.filterOptionText}>{filterOption}</Text>
+                </TouchableOpacity>
+              ))}
             </View>
           </View>
         </TouchableWithoutFeedback>
       </Modal>
 
-      {/* Orders Table */}
-      <View style={styles.tableHeader}>
-        <Text style={styles.headerCell}>ID</Text>
-        <Text style={styles.headerCell}>Sub Total</Text>
-        <Text style={styles.headerCell}>Grand Total</Text>
-        <Text style={styles.headerCell}>Order Date</Text>
-        <Text style={styles.headerCell}>Status</Text>
-        <Text style={styles.headerCell}>Delivery Address</Text>
-      </View>
-
-      {displayedData.map((item) => (
-        <View key={item.id}>
-          <View style={styles.tableRow}>
-            <Text style={styles.cell}>{item.id}</Text>
-            <Text style={styles.cell}>{item.subTotal}</Text>
-            <Text style={styles.cell}>{item.grandTotal}</Text>
-            <Text style={styles.cell}>{item.orderDate}</Text>
-            <Text style={[styles.cell, styles.statusCell]}>{item.status}</Text>
-            <TouchableOpacity onPress={() => toggleAddress(item.id)} style={styles.cell}>
-              <Icon name="location-on" size={20} color="#fff" />
+      {/* Orders List */}
+      <View style={styles.orderListContainer}>
+        <View style={styles.orderListHeader}>
+          {['ID', 'Sub Total', 'Grand Total', 'Date', 'Status', 'Address'].map((header) => (
+            <Text key={header} style={styles.orderListHeaderText}>{header}</Text>
+          ))}
+        </View>
+        {displayedData.map((item) => (
+          <View key={item.id} style={styles.orderListItem}>
+            <Text style={styles.orderListCell}>{item.id}</Text>
+            <Text style={styles.orderListCell}>${item.subTotal}</Text>
+            <Text style={styles.orderListCell}>${item.grandTotal}</Text>
+            <Text style={styles.orderListCell}>{item.orderDate}</Text>
+            <Text style={[
+              styles.orderListCell, 
+              styles.statusCell, 
+              item.status === 'Pending' && styles.pendingStatus,
+              item.status === 'Shipped' && styles.shippedStatus,
+              item.status === 'Delivered' && styles.deliveredStatus
+            ]}>
+              {item.status}
+            </Text>
+            <TouchableOpacity onPress={() => toggleAddress(item.id)} style={styles.orderListCell}>
+              <Icon name="location-on" size={20} color="#333" />
             </TouchableOpacity>
           </View>
+        ))}
+      </View>
 
-          {visibleAddressId === item.id && (
-            <View style={styles.addressContainer}>
-              <Text style={styles.addressText}>{item.deliveryAddress}</Text>
-            </View>
-          )}
-        </View>
-      ))}
-
-      {/* New Orders Box */}
-      <View style={styles.newOrdersBox}>
-        <Text style={styles.newOrdersTitle}>New Orders (Pending)</Text>
+      {/* Pending Orders */}
+      <View style={styles.pendingOrdersContainer}>
+        <Text style={styles.sectionTitle}>New Pending Orders</Text>
         {pendingOrdersData.map((item) => (
-          <TouchableOpacity key={item.id} onPress={() => navigation.navigate('OrderDetailAdmin', { orderId: item.id })}>
-            <View style={styles.newOrderItem}>
-              <Text style={styles.newOrderText}>Order ID: {item.id}</Text>
-              <Text style={styles.newOrderText}>Sub Total: {item.subTotal}</Text>
-              <Text style={styles.newOrderText}>Grand Total: {item.grandTotal}</Text>
-              <Text style={styles.newOrderText}>Order Date: {item.orderDate}</Text>
-              <Text style={styles.newOrderText}>Delivery Address: {item.deliveryAddress}</Text>
+          <TouchableOpacity 
+            key={item.id} 
+            style={styles.pendingOrderCard}
+            onPress={() => navigation.navigate('OrderDetailAdmin', { orderId: item.id })}
+          >
+            <View style={styles.pendingOrderContent}>
+              <Text style={styles.pendingOrderText}>Order ID: {item.id}</Text>
+              <Text style={styles.pendingOrderText}>Total: ${item.grandTotal}</Text>
+              <Text style={styles.pendingOrderText}>Date: {item.orderDate}</Text>
             </View>
           </TouchableOpacity>
         ))}
@@ -250,158 +238,138 @@ const OrderAdminScreen = () => {
 
 const styles = StyleSheet.create({
   container: {
+    marginTop: 24,
     flex: 1,
-    padding: 8,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#f4f4f4',
+    padding: 15,
   },
-  screenName: {
+  screenTitle: {
     fontSize: 24,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginTop: 30,
-    marginBottom: 20,
+    fontWeight: '700',
+    textAlign: 'left',
+    marginVertical: 20,
     color: '#333',
   },
-  summaryBox: {
+  statsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    backgroundColor: '#000',
-    borderRadius: 20,
-    padding: 20,
     marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
   },
-  summaryItem: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 8,
-  },
-  summaryLabel: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: '#fff',
-    textAlign: 'center',
-  },
-  summaryValue: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#fff',
-    textAlign: 'center',
-  },
-  orderIdBox: {
+  statCard: {
     backgroundColor: '#fff',
-    borderRadius: 20,
-    padding: 20,
+    borderRadius: 10,
+    padding: 15,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+    width: '22%',
+  },
+  statLabel: {
+    fontSize: 12,
+    color: '#666',
+    marginBottom: 5,
+  },
+  statValue: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#333',
+  },
+  orderUpdateContainer: {
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    padding: 15,
     marginBottom: 20,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
   },
-  orderIdTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 10,
-    color: '#000',
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 15,
+    color: '#333',
   },
-  orderIdInput: {
-    height: 40,
-    borderColor: '#ccc',
+  inputRow: {
+    marginBottom: 15,
+  },
+  orderInput: {
     borderWidth: 1,
-    borderRadius: 20,
-    paddingHorizontal: 20,
-    marginBottom: 10,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    padding: 10,
+    fontSize: 14,
   },
-  statusButtonsContainer: {
+  actionButtonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
-  statusButton: {
+  actionButton: {
     flex: 1,
-    padding: 10,
-    borderRadius: 20,
+    padding: 12,
+    borderRadius: 8,
     alignItems: 'center',
     marginHorizontal: 5,
   },
-  pendingButton: {
-    backgroundColor: '#ffcc00',
+  pendingButton: { backgroundColor: '#FFC107' },
+  shippedButton: { backgroundColor: '#2196F3' },
+  deliveredButton: { backgroundColor: '#4CAF50' },
+  actionButtonText: {
+    color: 'white',
+    fontWeight: '600',
   },
-  shippedButton: {
-    backgroundColor: '#00ccff',
-  },
-  deliveredButton: {
-    backgroundColor: '#00cc66',
-  },
-  statusButtonText: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: '#fff',
-  },
-  newOrdersBox: {
-    backgroundColor: '#fff',
-    borderRadius: 20,
-    padding: 20,
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: 20,
+  },
+  searchInputWrapper: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    paddingHorizontal: 10,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
   },
-  newOrdersTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 10,
-    color: '#000',
+  searchIcon: {
+    marginRight: 10,
   },
-  newOrderItem: {
-    padding: 10,
-    borderBottomWidth: 3,
-    borderBottomColor: '#000',
-  },
-  newOrderText: {
-    fontSize: 14,
-    color: '#000',
-  },
-  searchFilterContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  searchBar: {
+  searchInput: {
     flex: 1,
-    height: 40,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    borderRadius: 20,
-    paddingHorizontal: 20,
-    backgroundColor: '#fff',
-    marginRight: 20,
+    height: 45,
+    fontSize: 14,
   },
-  filterIcon: {
+  filterButton: {
+    marginLeft: 10,
     padding: 10,
     backgroundColor: '#fff',
-    borderColor: '#ccc',
-    borderWidth: 1,
-    borderRadius: 20,
+    borderRadius: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   modalOverlay: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0,0,0,0.5)',
   },
-  filterDropdown: {
-    width: '90%',
-    backgroundColor: '#000',
-    borderRadius: 20,
-    padding: 20,
+  filterModal: {
+    width: '80%',
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    padding: 15,
   },
   filterOption: {
     paddingVertical: 12,
@@ -409,55 +377,102 @@ const styles = StyleSheet.create({
     borderBottomColor: '#eee',
   },
   filterOptionText: {
+    textAlign: 'center',
     fontSize: 16,
-    color: '#fff',
-    textAlign: 'center',
+    color: '#333',
   },
-  tableHeader: {
+  orderListContainer: {
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  orderListHeader: {
     flexDirection: 'row',
-    borderBottomWidth: 3,
-    borderBottomColor: '#ccc',
-    paddingVertical: 20,
-    backgroundColor: '#000',
-  },
-  headerCell: {
+    backgroundColor: '#f4f4f4',
+    padding: 10,
+    borderTopLeftRadius: 10,
+    borderTop: 10, },
+    // ... (previous code remains the same)
+
+  orderListHeaderText: {
     flex: 1,
-    fontWeight: 'bold',
     textAlign: 'center',
-    color: '#fff',
+    fontWeight: '600',
+    color: '#666',
+    fontSize: 12,
   },
-  tableRow: {
+  orderListItem: {
     flexDirection: 'row',
-    borderBottomWidth: 3,
+    padding: 12,
+    borderBottomWidth: 1,
     borderBottomColor: '#eee',
-    paddingVertical: 10,
-    backgroundColor: '#000',
   },
-  cell: {
+  orderListCell: {
     flex: 1,
     textAlign: 'center',
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 3,
-    color: '#fff',
+    fontSize: 12,
+    color: '#333',
   },
   statusCell: {
-    overflow: 'hidden',
+    fontWeight: '600',
+    borderRadius: 5,
+    paddingVertical: 3,
+    paddingHorizontal: 8,
   },
-  addressContainer: {
-    padding: 8,
-    backgroundColor: '#000',
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+  pendingStatus: {
+    backgroundColor: '#FFC1074D',
+    color: '#FFC107',
   },
-  addressText: {
-    textAlign: 'center',
-    color: '#fff',
+  shippedStatus: {
+    backgroundColor: '#2196F34D',
+    color: '#2196F3',
+  },
+  deliveredStatus: {
+    backgroundColor: '#4CAF504D',
+    color: '#4CAF50',
+  },
+  pendingOrdersContainer: {
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    padding: 15,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  pendingOrderCard: {
+    backgroundColor: '#f9f9f9',
+    borderRadius: 8,
+    padding: 12,
+    marginVertical: 5,
+    borderLeftWidth: 4,
+    borderLeftColor: '#FFC107',
+  },
+  pendingOrderContent: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  pendingOrderText: {
+    fontSize: 12,
+    color: '#333',
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#f4f4f4',
+  },
+  loadingText: {
+    marginTop: 10,
+    color: '#666',
   },
 });
 
