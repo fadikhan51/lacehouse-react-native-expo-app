@@ -4,7 +4,7 @@ ________________________________________________________________________________
 📌 Prerequisites
 Ensure you have the following installed:
 
-Node.js (Latest LTS recommended)<br>
+Node.js (Latest LTS recommended)<br>sda
 Expo CLI<br>
 Firebase Console<br>
 Expo Go App (for testing on mobile)<br>
