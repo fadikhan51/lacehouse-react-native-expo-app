@@ -7,7 +7,7 @@ Ensure you have the following installed:
 Node.js (Latest LTS recommended)<br>
 Expo CLI<br> 
 Firebase Console<br>
-Expo Go App (for testing on mobile)<br>
+Expo Go App (for testing on mobile)<br> 
  
 _____________________________________________________________________________________________________________
 ⚡ Setup & Installation
