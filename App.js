@@ -27,6 +27,11 @@ import AdminLoginScreen from './Screens/Authentication/TabNavigationScreens/Admi
 import LoginPageAdminScreen from './Screens/Authentication/TabNavigationScreens/AdminAppScreens/LoginPageAdminScreen';
 import FeedbackAdminScreen from './Screens/Authentication/TabNavigationScreens/AdminAppScreens/FeedBackAdminScreen';
 import DashBoardAdminScreen from './Screens/Authentication/TabNavigationScreens/AdminAppScreens/DashBoardAdminScreen';  
+import AddProductScreen from './Screens/Authentication/TabNavigationScreens/AdminAppScreens/ProductOptions/AddProductScreen';
+import EditProductScreen from './Screens/Authentication/TabNavigationScreens/AdminAppScreens/ProductOptions/EditProductScreen';
+import StockInventoryScreen from './Screens/Authentication/TabNavigationScreens/AdminAppScreens/ProductOptions/StockInventoryScreen';
+
+
 
 const Stack = createStackNavigator();
 
@@ -65,6 +70,9 @@ export default function App() {
         <Stack.Screen name="LoginPageAdmin" component={LoginPageAdminScreen} />
         <Stack.Screen name="FeedbackAdmin" component={FeedbackAdminScreen} />
         <Stack.Screen name="DashBoardAdmin" component={DashBoardAdminScreen} />
+        <Stack.Screen name="AddProduct" component={AddProductScreen} />
+        <Stack.Screen name="EditProduct" component={EditProductScreen} />
+        <Stack.Screen name="StockInventory" component={StockInventoryScreen} />
         
         
         
