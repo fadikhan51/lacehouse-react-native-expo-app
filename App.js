@@ -35,7 +35,7 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator 
-        initialRouteName="AdminLogin"
+        initialRouteName="LoginPageAdmin"
         screenOptions={{
           headerShown: false
         }}
