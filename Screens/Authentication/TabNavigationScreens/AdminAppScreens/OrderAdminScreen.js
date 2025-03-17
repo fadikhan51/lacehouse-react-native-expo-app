@@ -7,13 +7,15 @@ const fetchOrders = async () => {
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve([
-        { id: '1', subTotal: '10.00', grandTotal: '10.00', orderDate: '2/25/25', status: 'Deliverd', deliveryAddress: 'Dr saima st, Afshan st, Lahore' },
+        { id: '1', subTotal: '10.00', grandTotal: '10.00', orderDate: '2/25/25', status: 'Delivered', deliveryAddress: 'Dr saima st, Afshan st, Lahore' },
         { id: '2', subTotal: '30.00', grandTotal: '32.00', orderDate: '2/20/25', status: 'Pending', deliveryAddress: 'Dr saima st, Afshan st, Lahore' },
         { id: '3', subTotal: '10.00', grandTotal: '10.00', orderDate: '2/21/25', status: 'Shipped', deliveryAddress: 'Dr saima st, Afshan st, Lahore' },
-        { id: '4', subTotal: '15.00', grandTotal: '16.00', orderDate: '2/23/25', status: 'Deliverd', deliveryAddress: 'Dr saima st, Afshan st, Lahore' },
+        { id: '4', subTotal: '15.00', grandTotal: '16.00', orderDate: '2/23/25', status: 'Delivered', deliveryAddress: 'Dr saima st, Afshan st, Lahore' },
         { id: '5', subTotal: '15.00', grandTotal: '16.00', orderDate: '2/22/25', status: 'Pending', deliveryAddress: 'Dr saima st, Afshan st, Lahore' },
         { id: '6', subTotal: '15.00', grandTotal: '16.00', orderDate: '2/26/25', status: 'Shipped', deliveryAddress: 'Dr saima st, Afshan st, Lahore' },
-        { id: '7', subTotal: '15.00', grandTotal: '16.00', orderDate: '2/26/25', status: 'Deliverd', deliveryAddress: 'Dr saima st, Afshan st, Lahore' },
+        { id: '7', subTotal: '15.00', grandTotal: '16.00', orderDate: '2/26/25', status: 'Delivered', deliveryAddress: 'Dr saima st, Afshan st, Lahore' },
+        { id: '8', subTotal: '20.00', grandTotal: '22.00', orderDate: '2/24/25', status: 'Cancelled', deliveryAddress: 'Dr saima st, Afshan st, Lahore' },
+        { id: '9', subTotal: '25.00', grandTotal: '27.00', orderDate: '2/28/25', status: 'Reversed', deliveryAddress: 'Dr saima st, Afshan st, Lahore' },
       ]);
     }, 1000);
   });
@@ -46,8 +48,10 @@ const OrderAdminScreen = () => {
 
   const totalOrders = data.length;
   const pendingOrders = data.filter((item) => item.status === 'Pending').length;
-  const completeOrders = data.filter((item) => item.status === 'Deliverd').length;
+  const completeOrders = data.filter((item) => item.status === 'Delivered').length;
   const shippedOrders = data.filter((item) => item.status === 'Shipped').length;
+  const cancelledOrders = data.filter((item) => item.status === 'Cancelled').length;
+  const reversedOrders = data.filter((item) => item.status === 'Reversed').length;
 
   const toggleFilter = () => {
     setIsFilterVisible(!isFilterVisible);
@@ -59,11 +63,7 @@ const OrderAdminScreen = () => {
   };
 
   const toggleAddress = (id) => {
-    if (visibleAddressId === id) {
-      setVisibleAddressId(null);
-    } else {
-      setVisibleAddressId(id);
-    }
+    setVisibleAddressId(visibleAddressId === id ? null : id);
   };
 
   const displayedData = data.filter((item) => {
@@ -73,176 +73,361 @@ const OrderAdminScreen = () => {
   });
 
   const pendingOrdersData = data.filter((item) => item.status === 'Pending');
+  const cancelledOrdersData = data.filter((item) => item.status === 'Cancelled');
+  const reversedOrdersData = data.filter((item) => item.status === 'Reversed');
 
   const handleUpdateStatus = (orderId, newStatus) => {
-    const updatedData = data.map((item) => {
-      if (item.id === orderId) {
-        return { ...item, status: newStatus };
-      }
-      return item;
-    });
+    // Validate order ID
+    if (!orderId.trim()) {
+      Alert.alert('Error', 'Please enter a valid Order ID');
+      return;
+    }
+
+    // Check if order exists
+    const order = data.find((item) => item.id === orderId);
+    if (!order) {
+      Alert.alert('Error', 'Order not found');
+      return;
+    }
+
+    // Apply status transition rules
+    const currentStatus = order.status;
+
+    // Check if the transition is allowed
+    if (newStatus === 'Cancelled' && currentStatus !== 'Pending') {
+      Alert.alert('Error', 'Only pending orders can be cancelled');
+      return;
+    }
+    
+    if (newStatus === 'Shipped' && currentStatus !== 'Pending') {
+      Alert.alert('Error', 'Only pending orders can be shipped');
+      return;
+    }
+    
+    if (newStatus === 'Delivered' && currentStatus !== 'Shipped') {
+      Alert.alert('Error', 'Only shipped orders can be delivered');
+      return;
+    }
+
+    if (newStatus === 'Reversed' && currentStatus !== 'Shipped') {
+      Alert.alert('Error', 'Only shipped orders can be reversed');
+      return;
+    }
+
+    // If reached here, update is allowed
+    const updatedData = data.map((item) => 
+      item.id === orderId ? { ...item, status: newStatus } : item
+    );
     setData(updatedData);
-    Alert.alert('Success', `Order ${orderId} status updated to ${newStatus}`);
+    Alert.alert('Status Updated', `Order ${orderId} is now ${newStatus}`);
   };
 
   const handleOrderIdSubmit = () => {
     const order = data.find((item) => item.id === orderIdInput);
     if (order) {
-      Alert.alert('Order Found', `Order ID: ${order.id}, Status: ${order.status}`);
+      Alert.alert('Order Details', `ID: ${order.id}\nStatus: ${order.status}`);
     } else {
       Alert.alert('Error', 'Order not found');
     }
   };
 
+  const navigateToOrderDetail = (orderId) => {
+    navigation.navigate('OrderDetailAdmin', { orderId });
+  };
+
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#0000ff" />
-        <Text>Loading orders...</Text>
+        <ActivityIndicator size="large" color="#333" />
+        <Text style={styles.loadingText}>Loading orders...</Text>
       </View>
     );
   }
 
+  const getOrderStatus = (orderId) => {
+    const order = data.find(item => item.id === orderId);
+    return order ? order.status : null;
+  };
+
+  // Determine which buttons should be disabled based on current order status
+  const orderStatus = getOrderStatus(orderIdInput);
+  const canSetPending = false; // Can't manually set to pending
+  const canShip = orderStatus === 'Pending';
+  const canDeliver = orderStatus === 'Shipped';
+  const canCancel = orderStatus === 'Pending';
+  const canReverse = orderStatus === 'Shipped';
+
   return (
     <ScrollView style={styles.container}>
-      <Text style={styles.screenName}>Order Screen</Text>
+      <Text style={styles.screenTitle}>Order Management</Text>
 
-      {/* Summary Box */}
-      <View style={styles.summaryBox}>
-        <View style={styles.summaryItem}>
-          <Text style={styles.summaryLabel}>Total Orders</Text>
-          <Text style={styles.summaryValue}>{totalOrders}</Text>
+      {/* Summary Statistics - Added Reversed orders stat */}
+      <View style={styles.statsContainer}>
+        <View style={styles.statsRow}>
+          <View style={styles.statCard}>
+            <Text style={styles.statLabel}>Total</Text>
+            <Text style={styles.statValue}>{totalOrders}</Text>
+          </View>
+          <View style={styles.statCard}>
+            <Text style={styles.statLabel}>Pending</Text>
+            <Text style={styles.statValue}>{pendingOrders}</Text>
+          </View>
         </View>
-        <View style={styles.summaryItem}>
-          <Text style={styles.summaryLabel}>Pending Orders</Text>
-          <Text style={styles.summaryValue}>{pendingOrders}</Text>
+        
+        <View style={styles.statsRow}>
+          <View style={styles.statCard}>
+            <Text style={styles.statLabel}>Shipped</Text>
+            <Text style={styles.statValue}>{shippedOrders}</Text>
+          </View>
+          <View style={styles.statCard}>
+            <Text style={styles.statLabel}>Delivered</Text>
+            <Text style={styles.statValue}>{completeOrders}</Text>
+          </View>
         </View>
-        <View style={styles.summaryItem}>
-          <Text style={styles.summaryLabel}>Delivered Orders</Text>
-          <Text style={styles.summaryValue}>{completeOrders}</Text>
-        </View>
-        <View style={styles.summaryItem}>
-          <Text style={styles.summaryLabel}>Shipped Orders</Text>
-          <Text style={styles.summaryValue}>{shippedOrders}</Text>
+        
+        <View style={styles.statsRow}>
+          <View style={styles.statCard}>
+            <Text style={styles.statLabel}>Cancelled</Text>
+            <Text style={styles.statValue}>{cancelledOrders}</Text>
+          </View>
+          <View style={styles.statCard}>
+            <Text style={styles.statLabel}>Reversed</Text>
+            <Text style={styles.statValue}>{reversedOrders}</Text>
+          </View>
         </View>
       </View>
 
-      {/* Order ID Input and Status Update Box */}
-      <View style={styles.orderIdBox}>
-        <Text style={styles.orderIdTitle}>Update Order Status</Text>
-        <TextInput
-          style={styles.orderIdInput}
-          placeholder="Enter Order ID"
-          value={orderIdInput}
-          onChangeText={setOrderIdInput}
-        />
-        <View style={styles.statusButtonsContainer}>
-          <TouchableOpacity
-            style={[styles.statusButton, styles.pendingButton]}
-            onPress={() => handleUpdateStatus(orderIdInput, 'Pending')}
-          >
-            <Text style={styles.statusButtonText}>Set Pending</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.statusButton, styles.shippedButton]}
-            onPress={() => handleUpdateStatus(orderIdInput, 'Shipped')}
-          >
-            <Text style={styles.statusButtonText}>Set Shipped</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.statusButton, styles.deliveredButton]}
-            onPress={() => handleUpdateStatus(orderIdInput, 'Deliverd')}
-          >
-            <Text style={styles.statusButtonText}>Set Delivered</Text>
-          </TouchableOpacity>
+      {/* Order Status Update - Added Reversed button */}
+      <View style={styles.orderUpdateContainer}>
+        <Text style={styles.sectionTitle}>Update Order Status</Text>
+        <View style={styles.inputRow}>
+          <TextInput
+            style={styles.orderInput}
+            placeholder="Enter Order ID"
+            placeholderTextColor="#666"
+            value={orderIdInput}
+            onChangeText={setOrderIdInput}
+          />
         </View>
+        {orderIdInput.trim() !== "" && orderStatus && (
+          <Text style={styles.currentStatusText}>
+            Current Status: <Text style={styles.statusHighlight}>{orderStatus}</Text>
+          </Text>
+        )}
+        <View style={styles.actionButtonRows}>
+          <View style={styles.actionButtonRow}>
+            <TouchableOpacity
+              style={[
+                styles.actionButton, 
+                styles.pendingButton,
+                !canSetPending && styles.disabledButton
+              ]}
+              disabled={!canSetPending}
+              onPress={() => handleUpdateStatus(orderIdInput, 'Pending')}
+            >
+              <Text style={styles.actionButtonText}>Set Pending</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                styles.actionButton, 
+                styles.shippedButton,
+                !canShip && styles.disabledButton
+              ]}
+              disabled={!canShip}
+              onPress={() => handleUpdateStatus(orderIdInput, 'Shipped')}
+            >
+              <Text style={styles.actionButtonText}>Set Shipped</Text>
+            </TouchableOpacity>
+          </View>
+          <View style={styles.actionButtonRow}>
+            <TouchableOpacity
+              style={[
+                styles.actionButton, 
+                styles.deliveredButton,
+                !canDeliver && styles.disabledButton
+              ]}
+              disabled={!canDeliver}
+              onPress={() => handleUpdateStatus(orderIdInput, 'Delivered')}
+            >
+              <Text style={styles.actionButtonText}>Set Delivered</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                styles.actionButton, 
+                styles.cancelledButton,
+                !canCancel && styles.disabledButton
+              ]}
+              disabled={!canCancel}
+              onPress={() => handleUpdateStatus(orderIdInput, 'Cancelled')}
+            >
+              <Text style={styles.actionButtonText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+          <View style={styles.actionButtonRow}>
+            <TouchableOpacity
+              style={[
+                styles.actionButton, 
+                styles.reversedButton,
+                !canReverse && styles.disabledButton
+              ]}
+              disabled={!canReverse}
+              onPress={() => handleUpdateStatus(orderIdInput, 'Reversed')}
+            >
+              <Text style={styles.actionButtonText}>Reverse Order</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+        <Text style={styles.statusFlowNote}>
+          Status Flow: Pending → Shipped → Delivered | Pending → Cancelled | Shipped → Reversed
+        </Text>
       </View>
 
-      {/* Search and Filter Section */}
-      <View style={styles.searchFilterContainer}>
-        <TextInput
-          style={styles.searchBar}
-          placeholder="Search..."
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-        />
-        <TouchableOpacity onPress={toggleFilter} style={styles.filterIcon}>
-          <Icon name="filter-list" size={24} color="#000" />
+      {/* Search and Filter */}
+      <View style={styles.searchContainer}>
+        <View style={styles.searchInputWrapper}>
+          <Icon name="search" size={20} color="#666" style={styles.searchIcon} />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search orders..."
+            placeholderTextColor="#666"
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+          />
+        </View>
+        <TouchableOpacity onPress={toggleFilter} style={styles.filterButton}>
+          <Icon name="filter-list" size={24} color="#333" />
         </TouchableOpacity>
       </View>
 
-      {/* Filter Modal */}
+      {/* Filter Modal - Added Reversed filter option */}
       <Modal
-        visible={isFilterVisible}
         transparent={true}
-        animationType="slide"
+        visible={isFilterVisible}
+        animationType="fade"
         onRequestClose={() => setIsFilterVisible(false)}
       >
         <TouchableWithoutFeedback onPress={() => setIsFilterVisible(false)}>
           <View style={styles.modalOverlay}>
-            <View style={styles.filterDropdown}>
-              <TouchableOpacity onPress={() => handleFilterSelect('All')} style={styles.filterOption}>
-                <Text style={styles.filterOptionText}>All</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => handleFilterSelect('Deliverd')} style={styles.filterOption}>
-                <Text style={styles.filterOptionText}>Delivered</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => handleFilterSelect('Pending')} style={styles.filterOption}>
-                <Text style={styles.filterOptionText}>Pending</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => handleFilterSelect('Shipped')} style={styles.filterOption}>
-                <Text style={styles.filterOptionText}>Shipped</Text>
-              </TouchableOpacity>
+            <View style={styles.filterModal}>
+              {['All', 'Delivered', 'Pending', 'Shipped', 'Cancelled', 'Reversed'].map((filterOption) => (
+                <TouchableOpacity
+                  key={filterOption}
+                  style={styles.filterOption}
+                  onPress={() => handleFilterSelect(filterOption)}
+                >
+                  <Text style={styles.filterOptionText}>{filterOption}</Text>
+                </TouchableOpacity>
+              ))}
             </View>
           </View>
         </TouchableWithoutFeedback>
       </Modal>
 
-      {/* Orders Table */}
-      <View style={styles.tableHeader}>
-        <Text style={styles.headerCell}>ID</Text>
-        <Text style={styles.headerCell}>Sub Total</Text>
-        <Text style={styles.headerCell}>Grand Total</Text>
-        <Text style={styles.headerCell}>Order Date</Text>
-        <Text style={styles.headerCell}>Status</Text>
-        <Text style={styles.headerCell}>Delivery Address</Text>
-      </View>
-
-      {displayedData.map((item) => (
-        <View key={item.id}>
-          <View style={styles.tableRow}>
-            <Text style={styles.cell}>{item.id}</Text>
-            <Text style={styles.cell}>{item.subTotal}</Text>
-            <Text style={styles.cell}>{item.grandTotal}</Text>
-            <Text style={styles.cell}>{item.orderDate}</Text>
-            <Text style={[styles.cell, styles.statusCell]}>{item.status}</Text>
-            <TouchableOpacity onPress={() => toggleAddress(item.id)} style={styles.cell}>
-              <Icon name="location-on" size={20} color="#fff" />
-            </TouchableOpacity>
-          </View>
-
-          {visibleAddressId === item.id && (
-            <View style={styles.addressContainer}>
-              <Text style={styles.addressText}>{item.deliveryAddress}</Text>
-            </View>
-          )}
+      {/* Orders List */}
+      <View style={styles.orderListContainer}>
+        <View style={styles.orderListHeader}>
+          {['ID', 'Sub Total', 'Grand Total', 'Date', 'Status', 'Address'].map((header) => (
+            <Text key={header} style={styles.orderListHeaderText}>{header}</Text>
+          ))}
         </View>
-      ))}
-
-      {/* New Orders Box */}
-      <View style={styles.newOrdersBox}>
-        <Text style={styles.newOrdersTitle}>New Orders (Pending)</Text>
-        {pendingOrdersData.map((item) => (
-          <TouchableOpacity key={item.id} onPress={() => navigation.navigate('OrderDetailAdmin', { orderId: item.id })}>
-            <View style={styles.newOrderItem}>
-              <Text style={styles.newOrderText}>Order ID: {item.id}</Text>
-              <Text style={styles.newOrderText}>Sub Total: {item.subTotal}</Text>
-              <Text style={styles.newOrderText}>Grand Total: {item.grandTotal}</Text>
-              <Text style={styles.newOrderText}>Order Date: {item.orderDate}</Text>
-              <Text style={styles.newOrderText}>Delivery Address: {item.deliveryAddress}</Text>
-            </View>
+        {displayedData.map((item) => (
+          <TouchableOpacity 
+            key={item.id} 
+            style={styles.orderListItem}
+            onPress={() => navigateToOrderDetail(item.id)}
+          >
+            <Text style={styles.orderListCell}>{item.id}</Text>
+            <Text style={styles.orderListCell}>${item.subTotal}</Text>
+            <Text style={styles.orderListCell}>${item.grandTotal}</Text>
+            <Text style={styles.orderListCell}>{item.orderDate}</Text>
+            <Text style={[
+              styles.orderListCell, 
+              styles.statusCell, 
+              item.status === 'Pending' && styles.pendingStatus,
+              item.status === 'Shipped' && styles.shippedStatus,
+              item.status === 'Delivered' && styles.deliveredStatus,
+              item.status === 'Cancelled' && styles.cancelledStatus,
+              item.status === 'Reversed' && styles.reversedStatus
+            ]}>
+              {item.status}
+            </Text>
+            <TouchableOpacity 
+              onPress={(e) => {
+                e.stopPropagation();
+                toggleAddress(item.id);
+              }} 
+              style={styles.orderListCell}
+            >
+              <Icon name="location-on" size={20} color="#333" />
+            </TouchableOpacity>
           </TouchableOpacity>
         ))}
+      </View>
+
+      {/* Pending Orders */}
+      <View style={styles.pendingOrdersContainer}>
+        <Text style={styles.sectionTitle}>New Pending Orders</Text>
+        {pendingOrdersData.length > 0 ? (
+          pendingOrdersData.map((item) => (
+            <TouchableOpacity 
+              key={item.id} 
+              style={styles.pendingOrderCard}
+              onPress={() => navigateToOrderDetail(item.id)}
+            >
+              <View style={styles.pendingOrderContent}>
+                <Text style={styles.pendingOrderText}>Order ID: {item.id}</Text>
+                <Text style={styles.pendingOrderText}>Total: ${item.grandTotal}</Text>
+                <Text style={styles.pendingOrderText}>Date: {item.orderDate}</Text>
+              </View>
+            </TouchableOpacity>
+          ))
+        ) : (
+          <Text style={styles.emptyStateText}>No pending orders</Text>
+        )}
+      </View>
+
+      {/* Cancelled Orders */}
+      <View style={styles.cancelledOrdersContainer}>
+        <Text style={styles.sectionTitle}>Recently Cancelled Orders</Text>
+        {cancelledOrdersData.length > 0 ? (
+          cancelledOrdersData.map((item) => (
+            <TouchableOpacity 
+              key={item.id} 
+              style={styles.cancelledOrderCard}
+              onPress={() => navigateToOrderDetail(item.id)}
+            >
+              <View style={styles.cancelledOrderContent}>
+                <Text style={styles.cancelledOrderText}>Order ID: {item.id}</Text>
+                <Text style={styles.cancelledOrderText}>Total: ${item.grandTotal}</Text>
+                <Text style={styles.cancelledOrderText}>Date: {item.orderDate}</Text>
+              </View>
+            </TouchableOpacity>
+          ))
+        ) : (
+          <Text style={styles.emptyStateText}>No cancelled orders</Text>
+        )}
+      </View>
+
+      {/* Reversed Orders - New section */}
+      <View style={styles.reversedOrdersContainer}>
+        <Text style={styles.sectionTitle}>Reversed Orders</Text>
+        {reversedOrdersData.length > 0 ? (
+          reversedOrdersData.map((item) => (
+            <TouchableOpacity 
+              key={item.id} 
+              style={styles.reversedOrderCard}
+              onPress={() => navigateToOrderDetail(item.id)}
+            >
+              <View style={styles.reversedOrderContent}>
+                <Text style={styles.reversedOrderText}>Order ID: {item.id}</Text>
+                <Text style={styles.reversedOrderText}>Total: ${item.grandTotal}</Text>
+                <Text style={styles.reversedOrderText}>Date: {item.orderDate}</Text>
+              </View>
+            </TouchableOpacity>
+          ))
+        ) : (
+          <Text style={styles.emptyStateText}>No reversed orders</Text>
+        )}
       </View>
     </ScrollView>
   );
@@ -250,158 +435,170 @@ const OrderAdminScreen = () => {
 
 const styles = StyleSheet.create({
   container: {
+    marginTop: 24,
     flex: 1,
-    padding: 8,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#f8f8f8',
+    padding: 15,
   },
-  screenName: {
+  screenTitle: {
     fontSize: 24,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginTop: 30,
-    marginBottom: 20,
-    color: '#333',
+    fontWeight: '700',
+    textAlign: 'left',
+    marginVertical: 20,
+    color: '#000',
   },
-  summaryBox: {
+  statsContainer: {
+    marginBottom: 20,
+  },
+  statsRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    backgroundColor: '#000',
-    borderRadius: 20,
-    padding: 20,
-    marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  summaryItem: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 8,
-  },
-  summaryLabel: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: '#fff',
-    textAlign: 'center',
-  },
-  summaryValue: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#fff',
-    textAlign: 'center',
-  },
-  orderIdBox: {
-    backgroundColor: '#fff',
-    borderRadius: 20,
-    padding: 20,
-    marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  orderIdTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
     marginBottom: 10,
+  },
+  statCard: {
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    padding: 12,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+    width: '48%', // Two cards per row with some margin
+  },
+  statLabel: {
+    fontSize: 12,
+    color: '#666',
+    marginBottom: 5,
+  },
+  statValue: {
+    fontSize: 16,
+    fontWeight: '700',
     color: '#000',
   },
-  orderIdInput: {
-    height: 40,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    borderRadius: 20,
-    paddingHorizontal: 20,
-    marginBottom: 10,
+  orderUpdateContainer: {
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    padding: 15,
+    marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
   },
-  statusButtonsContainer: {
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 15,
+    color: '#000',
+  },
+  inputRow: {
+    marginBottom: 15,
+  },
+  orderInput: {
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+    borderRadius: 6,
+    padding: 10,
+    fontSize: 14,
+    backgroundColor: '#fafafa',
+  },
+  currentStatusText: {
+    marginBottom: 10,
+    fontSize: 14,
+    color: '#666',
+  },
+  statusHighlight: {
+    fontWeight: '600',
+    color: '#000',
+  },
+  statusFlowNote: {
+    fontSize: 12,
+    fontStyle: 'italic',
+    color: '#666',
+    textAlign: 'center',
+    marginTop: 10,
+  },
+  actionButtonRows: {
+    marginVertical: 5,
+  },
+  actionButtonRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-  },
-  statusButton: {
-    flex: 1,
-    padding: 10,
-    borderRadius: 20,
-    alignItems: 'center',
-    marginHorizontal: 5,
-  },
-  pendingButton: {
-    backgroundColor: '#ffcc00',
-  },
-  shippedButton: {
-    backgroundColor: '#00ccff',
-  },
-  deliveredButton: {
-    backgroundColor: '#00cc66',
-  },
-  statusButtonText: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: '#fff',
-  },
-  newOrdersBox: {
-    backgroundColor: '#fff',
-    borderRadius: 20,
-    padding: 20,
-    marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  newOrdersTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
     marginBottom: 10,
-    color: '#000',
   },
-  newOrderItem: {
-    padding: 10,
-    borderBottomWidth: 3,
-    borderBottomColor: '#000',
+  actionButton: {
+    width: '48%',
+    padding: 12,
+    borderRadius: 6,
+    alignItems: 'center',
   },
-  newOrderText: {
-    fontSize: 14,
-    color: '#000',
+  // Updated colors with professional tones and added reversed button
+  pendingButton: { backgroundColor: '#4A90E2' }, // Professional blue
+  shippedButton: { backgroundColor: '#F5A623' }, // Professional orange
+  deliveredButton: { backgroundColor: '#9B51E0' }, // Professional purple
+  cancelledButton: { backgroundColor: '#D0021B' }, // Professional red
+  reversedButton: { backgroundColor: '#008080', width: '100%' }, // Professional teal
+  disabledButton: {
+    backgroundColor: '#cccccc',
+    opacity: 0.7,
   },
-  searchFilterContainer: {
+  actionButtonText: {
+    color: 'white',
+    fontWeight: '600',
+    fontSize: 12,
+  },
+  searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 20,
   },
-  searchBar: {
+  searchInputWrapper: {
     flex: 1,
-    height: 40,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    borderRadius: 20,
-    paddingHorizontal: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: '#fff',
-    marginRight: 20,
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
   },
-  filterIcon: {
+  searchIcon: {
+    marginRight: 10,
+  },
+  searchInput: {
+    flex: 1,
+    height: 45,
+    fontSize: 14,
+    color: '#000',
+  },
+  filterButton: {
+    marginLeft: 10,
     padding: 10,
     backgroundColor: '#fff',
-    borderColor: '#ccc',
-    borderWidth: 1,
-    borderRadius: 20,
+    borderRadius: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
   },
   modalOverlay: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0,0,0,0.5)',
   },
-  filterDropdown: {
-    width: '90%',
-    backgroundColor: '#000',
-    borderRadius: 20,
-    padding: 20,
+  filterModal: {
+    width: '80%',
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    padding: 15,
   },
   filterOption: {
     paddingVertical: 12,
@@ -409,55 +606,174 @@ const styles = StyleSheet.create({
     borderBottomColor: '#eee',
   },
   filterOptionText: {
+    textAlign: 'center',
     fontSize: 16,
-    color: '#fff',
-    textAlign: 'center',
+    color: '#000',
   },
-  tableHeader: {
+  orderListContainer: {
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+    overflow: 'hidden',
+  },
+  orderListHeader: {
     flexDirection: 'row',
-    borderBottomWidth: 3,
-    borderBottomColor: '#ccc',
-    paddingVertical: 20,
-    backgroundColor: '#000',
+    backgroundColor: '#f0f0f0',
+    padding: 10,
+    borderTopLeftRadius: 8,
+    borderTopRightRadius: 8,
   },
-  headerCell: {
+  orderListHeaderText: {
     flex: 1,
-    fontWeight: 'bold',
     textAlign: 'center',
-    color: '#fff',
+    fontWeight: '600',
+    color: '#000',
+    fontSize: 12,
   },
-  tableRow: {
+  orderListItem: {
     flexDirection: 'row',
-    borderBottomWidth: 3,
+    padding: 12,
+    borderBottomWidth: 1,
     borderBottomColor: '#eee',
-    paddingVertical: 10,
-    backgroundColor: '#000',
   },
-  cell: {
+  orderListCell: {
     flex: 1,
     textAlign: 'center',
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 3,
-    color: '#fff',
+    fontSize: 12,
+    color: '#000',
   },
   statusCell: {
-    overflow: 'hidden',
+    fontWeight: '600',
+    fontSize: 11,
+    borderRadius: 4,
+    paddingVertical: 3,
+    paddingHorizontal: 6,
   },
-  addressContainer: {
-    padding: 8,
-    backgroundColor: '#000',
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+  // Status colors with professional colors and added reversed status
+  pendingStatus: {
+    backgroundColor: '#E3F2FD', // Light blue
+    color: '#4A90E2', // Professional blue for text
   },
-  addressText: {
-    textAlign: 'center',
-    color: '#fff',
+  shippedStatus: {
+    backgroundColor: '#FFF3E0', // Light orange
+    color: '#F5A623', // Professional orange for text
+  },
+  deliveredStatus: {
+    backgroundColor: '#F3E5F5', // Light purple
+    color: '#9B51E0', // Professional purple for text
+  },
+  cancelledStatus: {
+    backgroundColor: '#FFEBEE', // Light red
+    color: '#D0021B', // Professional red for text
+  },
+  reversedStatus: {
+    backgroundColor: '#E0F2F1', // Light teal
+    color: '#008080', // Professional teal for text
+  },
+  pendingOrdersContainer: {
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    padding: 15,
+    marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  pendingOrderCard: {
+    backgroundColor: '#f9f9f9',
+    borderRadius: 6,
+    padding: 12,
+    marginVertical: 5,
+    borderLeftWidth: 4,
+    borderLeftColor: '#00BCD4', // Cyan for pending
+  },
+  pendingOrderContent: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  pendingOrderText: {
+    fontSize: 12,
+    color: '#000',
+  },
+  cancelledOrdersContainer: {
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    padding: 15,
+    marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  cancelledOrderCard: {
+    backgroundColor: '#f9f9f9',
+    borderRadius: 6,
+    padding: 12,
+    marginVertical: 5,
+    borderLeftWidth: 4,
+    borderLeftColor: '#D32F2F', // Red for cancelled
+  },
+  cancelledOrderContent: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  cancelledOrderText: {
+    fontSize: 12,
+    color: '#000',
+  },
+  // Added styles for Reversed Orders section
+  reversedOrdersContainer: {
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    padding: 15,
+    marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  reversedOrderCard: {
+    backgroundColor: '#f9f9f9',
+    borderRadius: 6,
+    padding: 12,
+    marginVertical: 5,
+    borderLeftWidth: 4,
+    borderLeftColor: '#008080', // Teal for reversed
+  },
+  reversedOrderContent: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  reversedOrderText: {
+    fontSize: 12,
+    color: '#000',
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#f8f8f8',
+  },
+  loadingText: {
+    marginTop: 10,
+    color: '#000',
+  },
+  emptyStateText: {
+    textAlign: 'center',
+    color: '#666',
+    marginVertical: 10,
+    fontStyle: 'italic',
   },
 });
 

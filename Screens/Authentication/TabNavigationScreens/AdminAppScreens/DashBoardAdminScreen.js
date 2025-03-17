@@ -120,271 +120,306 @@ const DashBoardAdminScreen = () => {
   // Determine how many products to show
   const displayedProducts = showAllProducts ? hottestSellingProducts : hottestSellingProducts.slice(0, 2);
 
+  // Render a card component
+  const Card = ({ children, style }) => (
+    <View style={[styles.card, style]}>
+      {children}
+    </View>
+  );
+
+  // Render a metric component
+  const Metric = ({ label, value, valueStyle }) => (
+    <View style={styles.metricContainer}>
+      <Text style={styles.metricLabel}>{label}</Text>
+      <Text style={[styles.metricValue, valueStyle]}>{value}</Text>
+    </View>
+  );
+
+  // Render a button component
+  const Button = ({ title, onPress, style }) => (
+    <TouchableOpacity style={[styles.button, style]} onPress={onPress}>
+      <Text style={styles.buttonText}>{title}</Text>
+    </TouchableOpacity>
+  );
+
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      {/* Dashboard Title */}
-      <Text style={styles.dashboardTitle}>Dashboard</Text>
-
-      {/* Sales Breakdown Box */}
-      <View style={styles.salesBreakdownBox}>
-        {/* Total Sales Box */}
-        <View style={styles.totalSalesBox}>
-          <Text style={styles.salesLabel}>Total Sales</Text>
-          <Text style={styles.salesAmount}>${totalSales.toLocaleString()}</Text>
+    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+      <View style={styles.content}>
+        {/* Header */}
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>Dashboard</Text>
         </View>
 
-        <Text style={styles.breakdownTitle}>Sales Breakdown</Text>
-
-        {/* Button to open modal */}
-        <TouchableOpacity style={styles.selectButton} onPress={() => setIsModalVisible(true)}>
-          <Text style={styles.selectButtonText}>Select Month/Year</Text>
-        </TouchableOpacity>
-
-        {/* Display selected month and year */}
-        <View style={styles.selectedContainer}>
-          <Text style={styles.selectedText}>Selected Month: {selectedMonth}</Text>
-          <Text style={styles.selectedText}>Selected Year: {selectedYear}</Text>
+        {/* Overview Stats Row */}
+        <View style={styles.statsRow}>
+          <Card style={styles.halfCard}>
+            <Metric 
+              label="Total Sales" 
+              value={`$${totalSales.toLocaleString()}`} 
+              valueStyle={styles.salesValue}
+            />
+          </Card>
+          
+          <Card style={styles.halfCard}>
+            <Metric 
+              label="Total Users" 
+              value={totalUsers.toLocaleString()} 
+              valueStyle={styles.usersValue}
+            />
+          </Card>
         </View>
-
-        <View style={styles.breakdownRow}>
-          <Text style={styles.breakdownLabel}>Today:</Text>
-          <Text style={styles.breakdownValue}>${dailySales.toLocaleString()}</Text>
-        </View>
-        <View style={styles.breakdownRow}>
-          <Text style={styles.breakdownLabel}>This Month:</Text>
-          <Text style={styles.breakdownValue}>${monthlySales.toLocaleString()}</Text>
-        </View>
-        <View style={styles.breakdownRow}>
-          <Text style={styles.breakdownLabel}>This Year:</Text>
-          <Text style={styles.breakdownValue}>${yearlySales.toLocaleString()}</Text>
-        </View>
-
-        {/* Daily Sales Section */}
-        <Text style={styles.dailySalesTitle}>Daily Sales for {selectedMonth}</Text>
-        <FlatList
-          data={displayedDays}
-          keyExtractor={(item) => item.day.toString()}
-          renderItem={({ item }) => (
-            <View style={styles.dailySalesItem}>
-              <Text style={styles.dailySalesDay}>Day {item.day}</Text>
-              <Text style={styles.dailySalesAmount}>${item.sales.toLocaleString()}</Text>
+        
+        {/* Sales Section */}
+        <Card>
+          <Text style={styles.sectionTitle}>Sales Breakdown</Text>
+          
+          <View style={styles.periodSelector}>
+            <Text style={styles.periodText}>{selectedMonth} {selectedYear}</Text>
+            <Button title="Change" onPress={() => setIsModalVisible(true)} />
+          </View>
+          
+          <View style={styles.metricsGrid}>
+            <View style={styles.metricItem}>
+              <Text style={styles.metricItemLabel}>Today</Text>
+              <Text style={styles.metricItemValue}>${dailySales.toLocaleString()}</Text>
+            </View>
+            
+            <View style={styles.metricItem}>
+              <Text style={styles.metricItemLabel}>This Month</Text>
+              <Text style={styles.metricItemValue}>${monthlySales.toLocaleString()}</Text>
+            </View>
+            
+            <View style={styles.metricItem}>
+              <Text style={styles.metricItemLabel}>This Year</Text>
+              <Text style={styles.metricItemValue}>${yearlySales.toLocaleString()}</Text>
+            </View>
+          </View>
+          
+          <View style={styles.divider} />
+          
+          <Text style={styles.subsectionTitle}>Daily Sales for {selectedMonth}</Text>
+          
+          {displayedDays.map((item) => (
+            <View key={item.day} style={styles.dataRow}>
+              <Text style={styles.dataLabel}>Day {item.day}</Text>
+              <Text style={styles.dataValue}>${item.sales.toLocaleString()}</Text>
+            </View>
+          ))}
+          
+          {dailySalesData.length > 2 && (
+            <TouchableOpacity style={styles.textButton} onPress={toggleShowAllDays}>
+              <Text style={styles.textButtonText}>
+                {showAllDays ? 'Show Less' : 'Show More'}
+              </Text>
+            </TouchableOpacity>
+          )}
+        </Card>
+        
+        {/* Users Section */}
+        <Card>
+          <Text style={styles.sectionTitle}>Users Breakdown</Text>
+          
+          <View style={styles.metricsGrid}>
+            <View style={styles.metricItem}>
+              <Text style={styles.metricItemLabel}>Today</Text>
+              <Text style={styles.metricItemValue}>{dailyUsers.toLocaleString()}</Text>
+            </View>
+            
+            <View style={styles.metricItem}>
+              <Text style={styles.metricItemLabel}>This Month</Text>
+              <Text style={styles.metricItemValue}>{monthlyUsers.toLocaleString()}</Text>
+            </View>
+            
+            <View style={styles.metricItem}>
+              <Text style={styles.metricItemLabel}>This Year</Text>
+              <Text style={styles.metricItemValue}>{yearlyUsers.toLocaleString()}</Text>
+            </View>
+          </View>
+        </Card>
+        
+        {/* Product Quantity Check */}
+        <Card>
+          <Text style={styles.sectionTitle}>Check Product Quantity</Text>
+          
+          <TextInput
+            style={styles.input}
+            placeholder="Enter Order No"
+            placeholderTextColor="#999"
+            value={orderNo}
+            onChangeText={setOrderNo}
+            keyboardType="numeric"
+          />
+          
+          <Button title="Search" onPress={handleOrderSearch} />
+          
+          {productQuantity !== null && (
+            <View style={styles.resultContainer}>
+              <Text style={styles.resultText}>
+                Product Quantity: <Text style={styles.highlightText}>{productQuantity}</Text>
+              </Text>
             </View>
           )}
-          scrollEnabled={false} // Disable scrolling for this FlatList
-        />
-
-        {/* Show More Button */}
-        {dailySalesData.length > 2 && (
-          <TouchableOpacity style={styles.showMoreButton} onPress={toggleShowAllDays}>
-            <Text style={styles.showMoreButtonText}>
-              {showAllDays ? 'Show Less' : 'Show More'}
-            </Text>
-          </TouchableOpacity>
-        )}
-      </View>
-
-      {/* Combined Users Box */}
-      <View style={styles.usersBox}>
-        {/* Total Users Section */}
-        <View style={styles.totalUsersSection}>
-          <Text style={styles.usersLabel}>Total Users</Text>
-          <Text style={styles.usersAmount}>{totalUsers.toLocaleString()}</Text>
-        </View>
-
-        {/* Users Breakdown Section */}
-        <Text style={styles.breakdownTitle}>Users Breakdown</Text>
-
-        <View style={styles.breakdownRow}>
-          <Text style={styles.breakdownLabel}>Today:</Text>
-          <Text style={styles.breakdownValue}>{dailyUsers.toLocaleString()}</Text>
-        </View>
-        <View style={styles.breakdownRow}>
-          <Text style={styles.breakdownLabel}>This Month:</Text>
-          <Text style={styles.breakdownValue}>{monthlyUsers.toLocaleString()}</Text>
-        </View>
-        <View style={styles.breakdownRow}>
-          <Text style={styles.breakdownLabel}>This Year:</Text>
-          <Text style={styles.breakdownValue}>{yearlyUsers.toLocaleString()}</Text>
-        </View>
-      </View>
-
-      {/* Product Quantity Box */}
-      <View style={styles.productQuantityBox}>
-        <Text style={styles.productQuantityTitle}>Check Product Quantity by Order No</Text>
-        <TextInput
-          style={styles.orderNoInput}
-          placeholder="Enter Order No"
-          value={orderNo}
-          onChangeText={setOrderNo}
-          keyboardType="numeric"
-        />
-        <TouchableOpacity style={styles.searchButton} onPress={handleOrderSearch}>
-          <Text style={styles.searchButtonText}>Search</Text>
-        </TouchableOpacity>
-        {productQuantity !== null && (
-          <Text style={styles.productQuantityText}>
-            Product Quantity: {productQuantity}
-          </Text>
-        )}
-      </View>
-
-      {/* New Box: Total Items Sold for Order ID */}
-      <View style={styles.orderBreakdownBox}>
-        <Text style={styles.orderBreakdownTitle}>Total Items Sold for Order ID</Text>
-        <TextInput
-          style={styles.orderNoInput}
-          placeholder="Enter Order No"
-          value={orderNo}
-          onChangeText={setOrderNo}
-          keyboardType="numeric"
-        />
-        <TouchableOpacity style={styles.searchButton} onPress={handleOrderSearch}>
-          <Text style={styles.searchButtonText}>Search</Text>
-        </TouchableOpacity>
-
-        {/* Display daily sales data for the selected month */}
-        {showDailySalesList && (
-          <View>
-            <Text style={styles.dailySalesTitle}>Daily Sales for {selectedMonth}</Text>
-            <FlatList
-              data={orderDailySalesData}
-              keyExtractor={(item) => item.day.toString()}
-              renderItem={({ item }) => (
-                <View style={styles.dailySalesItem}>
-                  <Text style={styles.dailySalesDay}>Day {item.day}</Text>
-                  <Text style={styles.dailySalesAmount}>Quantity Sold: {item.sales}</Text>
+        </Card>
+        
+        {/* Total Items Sold for Order ID */}
+        <Card>
+          <Text style={styles.sectionTitle}>Total Items Sold for Order ID</Text>
+          
+          <TextInput
+            style={styles.input}
+            placeholder="Enter Order No"
+            placeholderTextColor="#999"
+            value={orderNo}
+            onChangeText={setOrderNo}
+            keyboardType="numeric"
+          />
+          
+          <Button title="Search" onPress={handleOrderSearch} />
+          
+          {showDailySalesList && (
+            <View style={styles.resultContainer}>
+              <Text style={styles.subsectionTitle}>Daily Sales for {selectedMonth}</Text>
+              
+              {orderDailySalesData.map((item) => (
+                <View key={item.day} style={styles.dataRow}>
+                  <Text style={styles.dataLabel}>Day {item.day}</Text>
+                  <Text style={styles.dataValue}>Quantity: {item.sales}</Text>
                 </View>
-              )}
-              scrollEnabled={false} // Disable scrolling for this FlatList
-            />
-            {/* Close Button */}
-            <TouchableOpacity style={styles.closeButton} onPress={closeDailySalesList}>
-              <Text style={styles.closeButtonText}>Close</Text>
-            </TouchableOpacity>
-          </View>
-        )}
-      </View>
-
-      {/* Hottest Selling Products Box */}
-      <View style={styles.hottestProductBox}>
-        <Text style={styles.hottestProductTitle}>Hottest Selling Products</Text>
-        <FlatList
-          data={displayedProducts}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item }) => (
-            <View style={styles.hottestProductContent}>
+              ))}
+              
+              <TouchableOpacity style={styles.textButton} onPress={closeDailySalesList}>
+                <Text style={styles.textButtonText}>Close</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+        </Card>
+        
+        {/* Hottest Selling Products */}
+        <Card>
+          <Text style={styles.sectionTitle}>Hottest Selling Products</Text>
+          
+          {displayedProducts.map((product) => (
+            <View key={product.id} style={styles.productRow}>
               <Image
-                source={item.image}
-                style={styles.hottestProductImage}
+                source={product.image}
+                style={styles.productImage}
               />
-              <View style={styles.hottestProductDetails}>
-                <Text style={styles.hottestProductName}>{item.name}</Text>
-                <Text style={styles.hottestProductSales}>
-                  Total Sales: {item.sales.toLocaleString()}
+              <View style={styles.productInfo}>
+                <Text style={styles.productName}>{product.name}</Text>
+                <Text style={styles.productSales}>
+                  Total Sales: {product.sales.toLocaleString()}
                 </Text>
               </View>
             </View>
-          )}
-          scrollEnabled={false} // Disable scrolling for this FlatList
-        />
-        {/* Show More Button */}
-        {hottestSellingProducts.length > 2 && (
-          <TouchableOpacity
-            style={styles.showMoreButton}
-            onPress={() => setShowAllProducts(!showAllProducts)}
-          >
-            <Text style={styles.showMoreButtonText}>
-              {showAllProducts ? 'Show Less' : 'Show More'}
-            </Text>
-          </TouchableOpacity>
-        )}
-      </View>
-
-      {/* Modal for selecting month and year */}
-      <Modal visible={isModalVisible} transparent={true} animationType="slide">
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Select Month and Year</Text>
-
-            {/* Month and Year Selection in the same row */}
-            <View style={styles.rowContainer}>
-              {/* Month Selection */}
-              <View style={styles.listContainer}>
-                <Text style={styles.modalSubtitle}>Month</Text>
-                <FlatList
-                  data={months}
-                  keyExtractor={(item, index) => index.toString()}
-                  renderItem={({ item }) => (
-                    <TouchableOpacity
-                      style={styles.listItem}
-                      onPress={() => handleSelect('month', item)}
-                    >
-                      <Text style={styles.listItemText}>{item}</Text>
-                    </TouchableOpacity>
-                  )}
-                  horizontal={true}
-                  showsHorizontalScrollIndicator={false}
-                />
-              </View>
-
-              {/* Year Selection */}
-              <View style={styles.listContainer}>
-                <Text style={styles.modalSubtitle}>Year</Text>
-                <FlatList
-                  data={years}
-                  keyExtractor={(item, index) => index.toString()}
-                  renderItem={({ item }) => (
-                    <TouchableOpacity
-                      style={styles.listItem}
-                      onPress={() => handleSelect('year', item)}
-                    >
-                      <Text style={styles.listItemText}>{item}</Text>
-                    </TouchableOpacity>
-                  )}
-                  horizontal={true}
-                  showsHorizontalScrollIndicator={false}
-                />
-              </View>
-            </View>
-
-            {/* Close Button */}
-            <TouchableOpacity
-              style={styles.closeButton}
-              onPress={() => setIsModalVisible(false)}
+          ))}
+          
+          {hottestSellingProducts.length > 2 && (
+            <TouchableOpacity 
+              style={styles.textButton} 
+              onPress={() => setShowAllProducts(!showAllProducts)}
             >
-              <Text style={styles.closeButtonText}>Close</Text>
+              <Text style={styles.textButtonText}>
+                {showAllProducts ? 'Show Less' : 'Show More'}
+              </Text>
             </TouchableOpacity>
+          )}
+        </Card>
+      </View>
+        
+      {/* Modal for selecting month and year */}
+      <Modal visible={isModalVisible} transparent={true} animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Select Period</Text>
+            
+            <View style={styles.modalSection}>
+              <Text style={styles.modalSectionTitle}>Month</Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.optionsContainer}>
+                {months.map((month) => (
+                  <TouchableOpacity
+                    key={month}
+                    style={[
+                      styles.optionButton,
+                      selectedMonth === month && styles.selectedOption
+                    ]}
+                    onPress={() => handleSelect('month', month)}
+                  >
+                    <Text style={[
+                      styles.optionText,
+                      selectedMonth === month && styles.selectedOptionText
+                    ]}>
+                      {month}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            </View>
+            
+            <View style={styles.modalSection}>
+              <Text style={styles.modalSectionTitle}>Year</Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.optionsContainer}>
+                {years.map((year) => (
+                  <TouchableOpacity
+                    key={year}
+                    style={[
+                      styles.optionButton,
+                      selectedYear === year && styles.selectedOption
+                    ]}
+                    onPress={() => handleSelect('year', year)}
+                  >
+                    <Text style={[
+                      styles.optionText,
+                      selectedYear === year && styles.selectedOptionText
+                    ]}>
+                      {year}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            </View>
+            
+            <Button 
+              title="Close" 
+              onPress={() => setIsModalVisible(false)} 
+              style={styles.modalCloseButton}
+            />
           </View>
         </View>
       </Modal>
 
       {/* Modal for selecting month for order breakdown */}
-      <Modal visible={isMonthModalVisible} transparent={true} animationType="slide">
-        <View style={styles.modalContainer}>
+      <Modal visible={isMonthModalVisible} transparent={true} animationType="fade">
+        <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Select Month</Text>
-
-            {/* Month Selection */}
+            
             <FlatList
               data={months}
-              keyExtractor={(item, index) => index.toString()}
+              keyExtractor={(item) => item}
+              style={styles.monthList}
               renderItem={({ item }) => (
                 <TouchableOpacity
-                  style={styles.listItem}
+                  style={[
+                    styles.monthItem,
+                    selectedMonth === item && styles.selectedMonth
+                  ]}
                   onPress={() => handleMonthSelect(item)}
                 >
-                  <Text style={styles.listItemText}>{item}</Text>
+                  <Text style={[
+                    styles.monthItemText,
+                    selectedMonth === item && styles.selectedMonthText
+                  ]}>
+                    {item}
+                  </Text>
                 </TouchableOpacity>
               )}
             />
-
-            {/* Close Button */}
-            <TouchableOpacity
-              style={styles.closeButton}
-              onPress={() => setIsMonthModalVisible(false)}
-            >
-              <Text style={styles.closeButtonText}>Close</Text>
-            </TouchableOpacity>
+            
+            <Button 
+              title="Cancel" 
+              onPress={() => setIsMonthModalVisible(false)} 
+              style={styles.modalCloseButton}
+            />
           </View>
         </View>
       </Modal>
@@ -394,336 +429,263 @@ const DashBoardAdminScreen = () => {
 
 const styles = StyleSheet.create({
   container: {
-    flexGrow: 1,
-    padding: 20,
-    backgroundColor: '#000',
+    flex: 1,
+    marginTop: 24,
+    backgroundColor: '#f5f5f5',
   },
-  dashboardTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#fff',
-    textAlign: 'center',
-    marginBottom: 20,
-    marginTop: 30,
+  content: {
+    padding: 16,
   },
-  totalSalesBox: {
-    width: '100%',
-    padding: 20,
-    backgroundColor: '#ffffff',
-    borderRadius: 10,
-    shadowColor: '#fff',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.8,
-    shadowRadius: 2,
-    elevation: 5,
-    marginBottom: 20,
+  header: {
+    marginVertical: 24,
   },
-  salesLabel: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
-    textAlign: 'center',
-  },
-  salesAmount: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#4CAF50',
-    textAlign: 'center',
-    marginTop: 10,
-  },
-  usersBox: {
-    width: '100%',
-    padding: 20,
-    backgroundColor: '#fff',
-    borderRadius: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.8,
-    shadowRadius: 2,
-    elevation: 5,
-    marginTop: 30,
-  },
-  totalUsersSection: {
-    marginBottom: 20,
-  },
-  usersLabel: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
-    textAlign: 'center',
-  },
-  usersAmount: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: 'green',
-    textAlign: 'center',
-    marginTop: 10,
-  },
-  salesBreakdownBox: {
-    width: '100%',
-    padding: 20,
-    backgroundColor: '#fff',
-    borderRadius: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.8,
-    shadowRadius: 2,
-    elevation: 5,
-    marginTop: 20,
-  },
-  breakdownTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 15,
-    textAlign: 'center',
-  },
-  breakdownRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 10,
-  },
-  breakdownLabel: {
-    fontSize: 16,
-    fontWeight: 'bold',
+  headerTitle: {
+    fontSize: 28,
+    fontWeight: '600',
     color: '#000',
   },
-  breakdownValue: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#4CAF50',
-  },
-  selectButton: {
-    backgroundColor: '#000',
-    padding: 5,
-    borderRadius: 20,
-    alignItems: 'center',
-    marginBottom: 15,
-  },
-  selectButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  selectedContainer: {
-    marginBottom: 15,
-  },
-  selectedText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
-    textAlign: 'center',
-  },
-  dailySalesTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 20,
-    textAlign: 'center',
-    marginTop: 20,
-  },
-  dailySalesItem: {
+  statsRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    padding: 5,
-    borderBottomWidth: 3,
-    borderBottomColor: '#000',
+    marginBottom: 16,
   },
-  dailySalesDay: {
+  card: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  halfCard: {
+    width: '48%',
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#000',
+    marginBottom: 16,
+  },
+  subsectionTitle: {
     fontSize: 16,
-    fontWeight: 'bold',
-    color: '#555',
+    fontWeight: '500',
+    color: '#000',
+    marginVertical: 12,
   },
-  dailySalesAmount: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#4CAF50',
-  },
-  showMoreButton: {
-    backgroundColor: '#000',
-    padding: 5,
-    borderRadius: 20,
+  metricContainer: {
     alignItems: 'center',
-    marginTop: 20,
   },
-  showMoreButtonText: {
-    color: '#fff',
+  metricLabel: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 4,
+  },
+  metricValue: {
+    fontSize: 24,
+    fontWeight: '700',
+  },
+  salesValue: {
+    color: '#000',
+  },
+  usersValue: {
+    color: '#000',
+  },
+  periodSelector: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  periodText: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: '500',
+    color: '#000',
   },
-  modalContainer: {
+  button: {
+    backgroundColor: '#000',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 6,
+  },
+  buttonText: {
+    color: '#fff',
+    fontWeight: '500',
+    fontSize: 14,
+  },
+  metricsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginBottom: 8,
+  },
+  metricItem: {
+    width: '33.33%',
+    marginBottom: 16,
+  },
+  metricItemLabel: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 4,
+  },
+  metricItemValue: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#000',
+  },
+  divider: {
+    height: 1,
+    backgroundColor: '#eee',
+    marginVertical: 16,
+  },
+  dataRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
+  dataLabel: {
+    fontSize: 14,
+    color: '#333',
+  },
+  dataValue: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#000',
+  },
+  textButton: {
+    alignSelf: 'center',
+    marginTop: 12,
+  },
+  textButtonText: {
+    color: '#000',
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  input: {
+    height: 44,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 6,
+    marginBottom: 16,
+    paddingHorizontal: 12,
+    fontSize: 14,
+    color: '#000',
+  },
+  resultContainer: {
+    marginTop: 16,
+    paddingTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: '#eee',
+  },
+  resultText: {
+    fontSize: 16,
+    color: '#333',
+  },
+  highlightText: {
+    fontWeight: '600',
+    color: '#000',
+  },
+  productRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  productImage: {
+    width: 60,
+    height: 60,
+    borderRadius: 8,
+    marginRight: 12,
+    backgroundColor: '#f0f0f0',
+  },
+  productInfo: {
     flex: 1,
+  },
+  productName: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#000',
+    marginBottom: 4,
+  },
+  productSales: {
+    fontSize: 14,
+    color: '#666',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContent: {
-    width: '90%',
+    width: '85%',
     backgroundColor: '#fff',
-    borderRadius: 10,
+    borderRadius: 12,
     padding: 20,
   },
   modalTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#333',
-    textAlign: 'center',
-    marginBottom: 15,
-  },
-  modalSubtitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#555',
-    marginBottom: 10,
-    textAlign: 'center',
-  },
-  rowContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 15,
-  },
-  listContainer: {
-    width: '48%',
-  },
-  listItem: {
-    padding: 5,
-    backgroundColor: '#000',
-    borderRadius: 20,
-    margin: 5,
-    alignItems: 'center',
-  },
-  listItemText: {
-    fontSize: 14,
-    color: '#fff',
-  },
-  closeButton: {
-    backgroundColor: '#000',
-    padding: 5,
-    borderRadius: 20,
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  closeButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  productQuantityBox: {
-    width: '100%',
-    padding: 20,
-    backgroundColor: '#fff',
-    borderRadius: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.8,
-    shadowRadius: 2,
-    elevation: 5,
-    marginTop: 30,
-  },
-  productQuantityTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
-    textAlign: 'center',
-    marginBottom: 15,
-  },
-  orderNoInput: {
-    width: '100%',
-    padding: 10,
-    borderWidth: 1,
-    borderColor: '#000',
-    borderRadius: 10,
-    marginBottom: 15,
-  },
-  searchButton: {
-    backgroundColor: '#000',
-    padding: 5,
-    borderRadius: 20,
-    alignItems: 'center',
-  },
-  searchButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  productQuantityText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#4CAF50',
-    textAlign: 'center',
-    marginTop: 15,
-  },
-  orderBreakdownBox: {
-    width: '100%',
-    padding: 20,
-    backgroundColor: '#fff',
-    borderRadius: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.8,
-    shadowRadius: 2,
-    elevation: 5,
-    marginTop: 30,
-  },
-  orderBreakdownTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
-    textAlign: 'center',
-    marginBottom: 15,
-  },
-  breakdownContainer: {
-    marginTop: 15,
-  },
-  breakdownText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#4CAF50',
-    textAlign: 'center',
-    marginBottom: 5,
-  },
-  hottestProductBox: {
-    width: '100%',
-    padding: 20,
-    backgroundColor: '#fff',
-    borderRadius: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.8,
-    shadowRadius: 2,
-    elevation: 5,
-    marginTop: 30,
-  },
-  hottestProductTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
-    textAlign: 'center',
-    marginBottom: 10,
-  },
-  hottestProductContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  hottestProductImage: {
-    width: 100,
-    height: 100,
-    borderRadius: 20,
-    marginRight: 15,
-  },
-  hottestProductDetails: {
-    flex: 1,
-  },
-  hottestProductName: {
-    fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: '600',
     color: '#000',
-    marginBottom: 5,
+    marginBottom: 16,
+    textAlign: 'center',
   },
-  hottestProductSales: {
+  modalSection: {
+    marginBottom: 16,
+  },
+  modalSectionTitle: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#000',
+    marginBottom: 12,
+  },
+  optionsContainer: {
+    flexDirection: 'row',
+    marginBottom: 8,
+  },
+  optionButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    marginRight: 8,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#ddd',
+  },
+  selectedOption: {
+    backgroundColor: '#000',
+    borderColor: '#000',
+  },
+  optionText: {
+    color: '#333',
     fontSize: 14,
-    color: '#4CAF50',
+  },
+  selectedOptionText: {
+    color: '#fff',
+  },
+  modalCloseButton: {
+    marginTop: 8,
+  },
+  monthList: {
+    maxHeight: 300,
+  },
+  monthItem: {
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
+  selectedMonth: {
+    backgroundColor: '#f5f5f5',
+  },
+  monthItemText: {
+    fontSize: 16,
+    color: '#333',
+  },
+  selectedMonthText: {
+    fontWeight: '600',
+    color: '#000',
   },
 });
 
