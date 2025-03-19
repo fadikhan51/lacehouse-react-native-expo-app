@@ -18,7 +18,9 @@ const AddProductScreen = () => {
   const [productName, setProductName] = useState('');
   const [productCategory, setProductCategory] = useState('');
   const [productDescription, setProductDescription] = useState('');
-  const [productPrice, setProductPrice] = useState('');
+  const [originalPrice, setOriginalPrice] = useState('');
+  const [sellingPrice, setSellingPrice] = useState('');
+  const [profit, setProfit] = useState('');
   
   const [colorOptions, setColorOptions] = useState([
     { color: '', quantity: '', image: null }
@@ -54,8 +56,34 @@ const AddProductScreen = () => {
     }
   };
   
+  // Calculate profit when either original price or selling price changes
+  const calculateProfit = (original, selling) => {
+    if (original && selling) {
+      const originalValue = parseFloat(original);
+      const sellingValue = parseFloat(selling);
+      
+      if (!isNaN(originalValue) && !isNaN(sellingValue)) {
+        const profitValue = sellingValue - originalValue;
+        return profitValue.toFixed(2);
+      }
+    }
+    return '';
+  };
+  
+  // Update selling price and recalculate profit
+  const updateSellingPrice = (value) => {
+    setSellingPrice(value);
+    setProfit(calculateProfit(originalPrice, value));
+  };
+  
+  // Update original price and recalculate profit
+  const updateOriginalPrice = (value) => {
+    setOriginalPrice(value);
+    setProfit(calculateProfit(value, sellingPrice));
+  };
+  
   const handleSubmit = () => {
-    if (!productName || !productCategory || !productDescription || !productPrice) {
+    if (!productName || !productCategory || !productDescription || !originalPrice || !sellingPrice) {
       Alert.alert('Error', 'Please fill all required fields');
       return;
     }
@@ -114,16 +142,43 @@ const AddProductScreen = () => {
           />
         </View>
         
+        <View style={styles.priceContainer}>
+          <View style={[styles.formGroup, styles.priceField]}>
+            <Text style={styles.label}>Original Price*</Text>
+            <TextInput
+              style={styles.input}
+              value={originalPrice}
+              onChangeText={updateOriginalPrice}
+              placeholder="Enter cost price"
+              placeholderTextColor="#666"
+              keyboardType="numeric"
+            />
+          </View>
+          
+          <View style={[styles.formGroup, styles.priceField]}>
+            <Text style={styles.label}>Selling Price*</Text>
+            <TextInput
+              style={styles.input}
+              value={sellingPrice}
+              onChangeText={updateSellingPrice}
+              placeholder="Enter selling price"
+              placeholderTextColor="#666"
+              keyboardType="numeric"
+            />
+          </View>
+        </View>
+        
         <View style={styles.formGroup}>
-          <Text style={styles.label}>Product Price*</Text>
-          <TextInput
-            style={styles.input}
-            value={productPrice}
-            onChangeText={setProductPrice}
-            placeholder="Enter product price"
-            placeholderTextColor="#666"
-            keyboardType="numeric"
-          />
+          <Text style={styles.label}>Profit</Text>
+          <View style={[styles.input, styles.profitDisplay]}>
+            <Text style={[
+              styles.profitText, 
+              parseFloat(profit) > 0 ? styles.profitPositive : 
+              parseFloat(profit) < 0 ? styles.profitNegative : null
+            ]}>
+              {profit ? `$${profit}` : 'Calculate profit...'}
+            </Text>
+          </View>
         </View>
         
         <Text style={styles.sectionTitle}>Color Options</Text>
@@ -256,6 +311,31 @@ const styles = StyleSheet.create({
   textArea: {
     height: 120,
     textAlignVertical: 'top',
+  },
+  priceContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  priceField: {
+    flex: 1,
+  },
+  priceField: {
+    width: '48%',
+  },
+  profitDisplay: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#F8F9FA',
+  },
+  profitText: {
+    fontSize: 18,
+    fontWeight: '700',
+  },
+  profitPositive: {
+    color: '#28a745',
+  },
+  profitNegative: {
+    color: '#dc3545',
   },
   sectionTitle: {
     fontSize: 22,

@@ -21,7 +21,9 @@ const EditProductScreen = () => {
   const [productName, setProductName] = useState('');
   const [productCategory, setProductCategory] = useState('');
   const [productDescription, setProductDescription] = useState('');
-  const [productPrice, setProductPrice] = useState('');
+  const [originalPrice, setOriginalPrice] = useState('');
+  const [sellingPrice, setSellingPrice] = useState('');
+  const [profit, setProfit] = useState('');
   const [isSold, setIsSold] = useState(false);
   
   const [colorOptions, setColorOptions] = useState([
@@ -34,7 +36,12 @@ const EditProductScreen = () => {
       setProductName(product.name || '');
       setProductCategory(product.category || '');
       setProductDescription(product.description || '');
-      setProductPrice(product.price ? product.price.toString() : '');
+      setOriginalPrice(product.originalPrice ? product.originalPrice.toString() : '');
+      setSellingPrice(product.sellingPrice ? product.sellingPrice.toString() : '');
+      calculateProfit(
+        product.originalPrice ? product.originalPrice.toString() : '',
+        product.sellingPrice ? product.sellingPrice.toString() : ''
+      );
       setIsSold(product.isSold || false);
       
       if (product.colorOptions && product.colorOptions.length > 0) {
@@ -45,6 +52,34 @@ const EditProductScreen = () => {
       }
     }
   }, [product]);
+  
+  // Calculate profit when either original price or selling price changes
+  const calculateProfit = (original, selling) => {
+    if (original && selling) {
+      const originalValue = parseFloat(original);
+      const sellingValue = parseFloat(selling);
+      
+      if (!isNaN(originalValue) && !isNaN(sellingValue)) {
+        const profitValue = sellingValue - originalValue;
+        setProfit(profitValue.toFixed(2));
+        return profitValue.toFixed(2);
+      }
+    }
+    setProfit('');
+    return '';
+  };
+  
+  // Update selling price and recalculate profit
+  const updateSellingPrice = (value) => {
+    setSellingPrice(value);
+    calculateProfit(originalPrice, value);
+  };
+  
+  // Update original price and recalculate profit
+  const updateOriginalPrice = (value) => {
+    setOriginalPrice(value);
+    calculateProfit(value, sellingPrice);
+  };
   
   const addColorOption = () => {
     setColorOptions([...colorOptions, { color: '', quantity: '', image: null, isSold: false }]);
@@ -77,7 +112,7 @@ const EditProductScreen = () => {
   };
   
   const handleSubmit = () => {
-    if (!productName || !productCategory || !productDescription || !productPrice) {
+    if (!productName || !productCategory || !productDescription || !originalPrice || !sellingPrice) {
       Alert.alert('Error', 'Please fill all required fields');
       return;
     }
@@ -97,7 +132,9 @@ const EditProductScreen = () => {
       name: productName,
       category: productCategory,
       description: productDescription,
-      price: parseFloat(productPrice),
+      originalPrice: parseFloat(originalPrice),
+      sellingPrice: parseFloat(sellingPrice),
+      profit: parseFloat(profit),
       colorOptions: colorOptions,
       isSold: isSold,
       updatedAt: new Date().toISOString(),
@@ -161,16 +198,43 @@ const EditProductScreen = () => {
           />
         </View>
         
+        <View style={styles.priceContainer}>
+          <View style={[styles.formGroup, styles.priceField]}>
+            <Text style={styles.label}>Original Price*</Text>
+            <TextInput
+              style={styles.input}
+              value={originalPrice}
+              onChangeText={updateOriginalPrice}
+              placeholder="Enter cost price"
+              placeholderTextColor="#666"
+              keyboardType="numeric"
+            />
+          </View>
+          
+          <View style={[styles.formGroup, styles.priceField]}>
+            <Text style={styles.label}>Selling Price*</Text>
+            <TextInput
+              style={styles.input}
+              value={sellingPrice}
+              onChangeText={updateSellingPrice}
+              placeholder="Enter selling price"
+              placeholderTextColor="#666"
+              keyboardType="numeric"
+            />
+          </View>
+        </View>
+        
         <View style={styles.formGroup}>
-          <Text style={styles.label}>Product Price*</Text>
-          <TextInput
-            style={styles.input}
-            value={productPrice}
-            onChangeText={setProductPrice}
-            placeholder="Enter product price"
-            placeholderTextColor="#666"
-            keyboardType="numeric"
-          />
+          <Text style={styles.label}>Profit</Text>
+          <View style={[styles.input, styles.profitDisplay]}>
+            <Text style={[
+              styles.profitText, 
+              parseFloat(profit) > 0 ? styles.profitPositive : 
+              parseFloat(profit) < 0 ? styles.profitNegative : null
+            ]}>
+              {profit ? `$${profit}` : 'Calculate profit...'}
+            </Text>
+          </View>
         </View>
         
         <View style={styles.soldStatusContainer}>
@@ -333,6 +397,28 @@ const styles = StyleSheet.create({
   textArea: {
     height: 120,
     textAlignVertical: 'top',
+  },
+  priceContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  priceField: {
+    width: '48%',
+  },
+  profitDisplay: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#F8F9FA',
+  },
+  profitText: {
+    fontSize: 18,
+    fontWeight: '700',
+  },
+  profitPositive: {
+    color: '#28a745',
+  },
+  profitNegative: {
+    color: '#dc3545',
   },
   soldStatusContainer: {
     backgroundColor: '#FFFFFF',

@@ -20,15 +20,16 @@ const StockInventoryScreen = () => {
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
-
+  
   // Categories for the dropdown filter
   const categories = ['All', 'Clothing', 'Electronics', 'Home Decor'];
-
+  
   // Dummy data for demonstration
   const dummyProducts = [
     {
       id: '1',
       name: 'Product 1',
+      originalPrice: 19.99,
       price: 29.99,
       category: 'Clothing',
       isSold: false,
@@ -40,6 +41,7 @@ const StockInventoryScreen = () => {
     {
       id: '2',
       name: 'Product 2',
+      originalPrice: 79.99,
       price: 99.99,
       category: 'Electronics',
       isSold: true,
@@ -50,6 +52,7 @@ const StockInventoryScreen = () => {
     {
       id: '3',
       name: 'Product 3',
+      originalPrice: 39.99,
       price: 49.99,
       category: 'Home Decor',
       isSold: false,
@@ -58,13 +61,13 @@ const StockInventoryScreen = () => {
       ],
     },
   ];
-
+  
   // Load products when component mounts
   useEffect(() => {
     setProducts(dummyProducts);
     setFilteredProducts(dummyProducts);
   }, []);
-
+  
   // Filter products when category changes
   useEffect(() => {
     if (selectedCategory === 'All') {
@@ -74,22 +77,22 @@ const StockInventoryScreen = () => {
       setFilteredProducts(filtered);
     }
   }, [selectedCategory, products]);
-
+  
   // Calculate active products (not sold)
   const activeProducts = filteredProducts.filter(product => !product.isSold);
-
+  
   // Navigate to edit screen with product details
   const handleProductPress = (product) => {
     navigation.navigate('EditProduct', { product });
   };
-
+  
   // Calculate total quantity for a product
   const calculateTotalQuantity = (colorOptions) => {
     return colorOptions.reduce((total, option) => {
       return total + parseInt(option.quantity || 0);
     }, 0);
   };
-
+  
   // Render each product item
   const renderProductItem = ({ item }) => {
     const mainImage = item.colorOptions[0]?.image || 'https://via.placeholder.com/150';
@@ -113,7 +116,30 @@ const StockInventoryScreen = () => {
         
         <View style={styles.productInfo}>
           <Text style={styles.productName}>{item.name}</Text>
-          <Text style={styles.productPrice}>${item.price.toFixed(2)}</Text>
+          
+          <View style={styles.priceContainer}>
+            <View style={styles.priceItem}>
+              <Text style={styles.priceLabel}>ORIGINAL</Text>
+              <Text style={styles.originalPrice}>${item.originalPrice?.toFixed(2) || '0.00'}</Text>
+            </View>
+            
+            <View style={styles.priceItem}>
+              <Text style={styles.priceLabel}>SELLING</Text>
+              <Text style={styles.productPrice}>${item.price.toFixed(2)}</Text>
+            </View>
+            
+            <View style={styles.priceItem}>
+              <Text style={styles.priceLabel}>PROFIT</Text>
+              <Text style={[
+                styles.profitValue,
+                (item.price - (item.originalPrice || 0)) > 0 
+                  ? styles.positiveProfit 
+                  : styles.negativeProfit
+              ]}>
+                ${((item.price - (item.originalPrice || 0)) || 0).toFixed(2)}
+              </Text>
+            </View>
+          </View>
           
           <View style={styles.productDetails}>
             <View style={styles.quantityContainer}>
@@ -146,7 +172,7 @@ const StockInventoryScreen = () => {
       </TouchableOpacity>
     );
   };
-
+  
   // Render category dropdown
   const renderDropdown = () => {
     return (
@@ -176,7 +202,7 @@ const StockInventoryScreen = () => {
       </Modal>
     );
   };
-
+  
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#F8F9FA" />
@@ -229,7 +255,7 @@ const StockInventoryScreen = () => {
           showsVerticalScrollIndicator={false}
         />
       </View>
-
+      
       {/* Render Dropdown */}
       {renderDropdown()}
     </SafeAreaView>
@@ -385,13 +411,84 @@ const styles = StyleSheet.create({
     color: '#212529',
     marginBottom: 8,
   },
+  priceContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 16,
+  },
+  priceItem: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  priceLabel: {
+    fontSize: 12,
+    color: '#6C757D',
+    marginBottom: 4,
+  },
+  originalPrice: {
+    fontSize: 14,
+    color: '#1976D2',
+    fontWeight: 'bold',
+  },
   productPrice: {
     fontSize: 16,
-    color: '#28A745',
-    marginBottom: 16,
+    color: '#4CAF50',
+    fontWeight: 'bold',
+  },
+  profitValue: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  positiveProfit: {
+    color: '#673AB7',
+  },
+  negativeProfit: {
+    color: '#F44336',
   },
   productDetails: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 16,
+  },
+  quantityContainer: {
+    alignItems: 'center',
+  },
+  categoryContainer: {
+    alignItems: 'center',
+  },
+  detailLabel: {
+    fontSize: 12,
+    color: '#6C757D',
+  },
+  detailValue: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#212529',
+  },
+  colorsLabel: {
+    fontSize: 14,
+    color: '#6C757D',
+    marginBottom: 8,
+  },
+  colorsContainer: {
+    flexDirection: 'row',
+  },
+  colorOption: {
+    alignItems: 'center',
+    marginRight: 16,
+  },
+  colorName: {
+    fontSize: 12,
+    color: '#6C757D',
+  },
+  colorQuantity: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#212529',
+  },
+  dropdownOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'space-between',
     marginBottom: 16,
   },
